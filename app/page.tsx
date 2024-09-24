@@ -3,8 +3,9 @@ import Image from "next/image";
 import { Search, ShoppingCart, User } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import SearchBar from "@/components/SearchBar";
 
 export default function HomePage() {
   return (
@@ -16,29 +17,7 @@ export default function HomePage() {
         <p className="mb-6 text-lg md:mb-8 md:text-xl">
           Search for discounted medications and earn Fundus Points
         </p>
-        <form className="mx-auto max-w-3xl">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 transform text-muted-foreground md:left-4 md:h-6 md:w-6" />
-            <Input
-              type="search"
-              placeholder="Search for medications..."
-              className="w-full rounded-full py-4 pl-10 pr-4 text-base md:py-6 md:pl-12 md:text-xl"
-            />
-            <Button
-              type="submit"
-              className="absolute right-2 top-1/2 hidden -translate-y-1/2 transform rounded-full md:px-6 md:text-base lg:block"
-            >
-              Search
-            </Button>
-            <Button
-              type="submit"
-              size={"sm"}
-              className="absolute right-1 top-1/2 -translate-y-1/2 transform rounded-full lg:hidden"
-            >
-              Search
-            </Button>
-          </div>
-        </form>
+        <SearchBar goButton={true} />
       </section>
 
       <section className="mb-12 px-4 md:px-0">

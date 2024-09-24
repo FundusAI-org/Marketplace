@@ -1,5 +1,3 @@
-"use client";
-import { useState } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -19,7 +17,6 @@ export default function SearchResultsPage({
   searchParams?: { query?: string; page?: string };
 }) {
   const query = searchParams?.query || "";
-  const [priceRange, setPriceRange] = useState([0, 100]);
 
   return (
     <main className="container w-full py-6 md:py-12">
@@ -50,12 +47,12 @@ export default function SearchResultsPage({
                 min={0}
                 max={100}
                 step={1}
-                value={priceRange}
-                onValueChange={setPriceRange}
+                // value={priceRange}
+                // onValueChange={setPriceRange}
               />
               <div className="mt-2 flex justify-between">
-                <span>${priceRange[0]}</span>
-                <span>${priceRange[1]}</span>
+                {/* <span>${priceRange[0]}</span>
+                <span>${priceRange[1]}</span> */}
               </div>
             </div>
             <div>
