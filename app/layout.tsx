@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import Link from "next/link";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Search, ShoppingCart, User } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -28,7 +33,67 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <header className="sticky top-0 z-50 flex w-full flex-col items-center justify-center border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="container flex h-14 items-center justify-between">
+            <Link href="/" className="ml-4 flex items-center space-x-2 md:ml-0">
+              <Image
+                src="/fundusai-logo.svg"
+                alt="FundusAI Logo"
+                width={32}
+                height={32}
+              />
+              <span className="hidden font-bold md:inline">FundusAI</span>
+            </Link>
+            <form className="ml-4">
+              <div className="relative">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="search"
+                  placeholder="Search medications..."
+                  className="w-full pl-8 pr-4 md:w-[300px] lg:w-[400px]"
+                />
+              </div>
+            </form>
+            <div className="flex items-center space-x-2">
+              <Button variant="ghost" size="icon">
+                <ShoppingCart className="h-5 w-5" />
+                <span className="sr-only">Cart</span>
+              </Button>
+              <Button variant="ghost" size="icon">
+                <User className="h-5 w-5" />
+                <span className="sr-only">User</span>
+              </Button>
+            </div>
+          </div>
+        </header>
+
+        <div className="flex min-h-screen w-full items-center justify-center">
+          {children}
+        </div>
+
+        <footer className="mt-12 flex w-full flex-col items-center justify-center border-t">
+          <div className="container px-4 py-6 md:px-0">
+            <div className="text-center md:flex md:items-center md:justify-between md:text-left">
+              <p className="text-sm md:text-base">
+                &copy; 2023 FundusAI. All rights reserved.
+              </p>
+              <div className="mt-4 flex justify-center space-x-4 md:mt-0 md:justify-end">
+                <Link
+                  href="#"
+                  className="text-sm text-muted-foreground hover:text-primary md:text-base"
+                >
+                  Privacy Policy
+                </Link>
+                <Link
+                  href="#"
+                  className="text-sm text-muted-foreground hover:text-primary md:text-base"
+                >
+                  Terms of Service
+                </Link>
+              </div>
+            </div>
+          </div>
+        </footer>
       </body>
     </html>
   );
