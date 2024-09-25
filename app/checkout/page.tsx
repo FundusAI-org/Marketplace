@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { CreditCard, Trash2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { Trash2, AlertCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,31 +22,52 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+
+// Mock user data - in a real app, this would come from your auth system
+const mockUser = {
+  isLoggedIn: true,
+  fundusPoints: 100,
+};
 
 export default function CheckoutPage() {
   const [cartItems, setCartItems] = useState([
     { id: 1, name: "Medication A", price: 29.99, quantity: 2 },
     { id: 2, name: "Medication B", price: 39.99, quantity: 1 },
   ]);
+  const [fundusPointsToUse, setFundusPointsToUse] = useState(0);
+  const [fundusPointDiscount, setFundusPointDiscount] = useState(0);
 
   const subtotal = cartItems.reduce(
     (acc, item) => acc + item.price * item.quantity,
-    0
+    0,
   );
   const tax = subtotal * 0.1;
-  const total = subtotal + tax;
+  const total = subtotal + tax - fundusPointDiscount;
 
-  const removeItem = (id: number) => {
+  const removeItem = (id) => {
     setCartItems(cartItems.filter((item) => item.id !== id));
   };
 
+  const handleFundusPointsChange = (e) => {
+    const value = Math.floor(Number(e.target.value));
+    if (value >= 0 && value <= mockUser.fundusPoints) {
+      setFundusPointsToUse(value);
+    }
+  };
+
+  useEffect(() => {
+    const discount = fundusPointsToUse * 2; // 1 Fundus Point = $2
+    setFundusPointDiscount(discount);
+  }, [fundusPointsToUse]);
+
   return (
-    <main className="container py-6 md:py-12">
-      <h1 className="text-3xl font-bold mb-6">Checkout</h1>
-      <div className="flex flex-col lg:flex-row gap-8">
+    <main className="container min-h-screen bg-background py-6 md:py-12">
+      <h1 className="mb-6 text-3xl font-bold">Checkout</h1>
+      <div className="flex flex-col gap-8 lg:flex-row">
         <div className="lg:w-2/3">
-          <div className="bg-card rounded-lg p-6 mb-6">
-            <h2 className="text-xl font-semibold mb-4">Your Cart</h2>
+          <div className="mb-6 rounded-lg bg-card p-6">
+            <h2 className="mb-4 text-xl font-semibold">Your Cart</h2>
             <Table>
               <TableHeader>
                 <TableRow>
@@ -77,10 +99,10 @@ export default function CheckoutPage() {
               </TableBody>
             </Table>
           </div>
-          <div className="bg-card rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-4">Shipping Information</h2>
+          <div className="rounded-lg bg-card p-6">
+            <h2 className="mb-4 text-xl font-semibold">Shipping Information</h2>
             <form className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
                   <Label htmlFor="firstName">First Name</Label>
                   <Input id="firstName" placeholder="John" />
@@ -94,7 +116,7 @@ export default function CheckoutPage() {
                 <Label htmlFor="address">Address</Label>
                 <Input id="address" placeholder="123 Main St" />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 <div>
                   <Label htmlFor="city">City</Label>
                   <Input id="city" placeholder="New York" />
@@ -121,17 +143,23 @@ export default function CheckoutPage() {
           </div>
         </div>
         <div className="lg:w-1/3">
-          <div className="bg-card rounded-lg p-6 sticky top-20">
-            <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
-            <div className="space-y-2 mb-4">
+          <div className="sticky top-20 rounded-lg bg-card p-6">
+            <h2 className="mb-4 text-xl font-semibold">Order Summary</h2>
+            <div className="mb-4 space-y-2">
               <div className="flex justify-between">
                 <span>Subtotal</span>
                 <span>${subtotal.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between stroke-gray-400">
                 <span>Tax</span>
                 <span>${tax.toFixed(2)}</span>
               </div>
+              {fundusPointDiscount > 0 && (
+                <div className="flex justify-between text-green-600">
+                  <span>Fundus Points Discount</span>
+                  <span>-${fundusPointDiscount.toFixed(2)}</span>
+                </div>
+              )}
               <div className="flex justify-between font-semibold">
                 <span>Total</span>
                 <span>${total.toFixed(2)}</span>
@@ -139,18 +167,35 @@ export default function CheckoutPage() {
             </div>
             <div className="mb-4">
               <Label htmlFor="fundusPoints">Use Fundus Points</Label>
-              <Input
-                id="fundusPoints"
-                type="number"
-                placeholder="Enter points"
-              />
-            </div>
-            <div className="mb-6">
-              <Label htmlFor="cardNumber">Card Number</Label>
-              <div className="relative">
-                <Input id="cardNumber" placeholder="1234 5678 9012 3456" />
-                <CreditCard className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              </div>
+              {mockUser.isLoggedIn ? (
+                <>
+                  <Input
+                    id="fundusPoints"
+                    type="number"
+                    placeholder="Enter points"
+                    value={fundusPointsToUse}
+                    onChange={handleFundusPointsChange}
+                    min={0}
+                    max={mockUser.fundusPoints}
+                  />
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Available: {mockUser.fundusPoints} points (1 point = $2
+                    discount)
+                  </p>
+                </>
+              ) : (
+                <Alert>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Login required</AlertTitle>
+                  <AlertDescription>
+                    Please{" "}
+                    <Link href="/login" className="underline">
+                      login
+                    </Link>{" "}
+                    to use Fundus Points discount.
+                  </AlertDescription>
+                </Alert>
+              )}
             </div>
             <Button className="w-full">Place Order</Button>
           </div>

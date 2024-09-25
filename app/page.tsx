@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import SearchBar from "@/components/SearchBar";
+import LogoScroller from "@/components/LogoScroller";
 
 export default function HomePage() {
   return (
@@ -88,20 +89,7 @@ export default function HomePage() {
         <h2 className="mb-4 text-xl font-bold md:mb-6 md:text-2xl">
           Partner Pharmacies
         </h2>
-        <div className="flex flex-wrap gap-2 md:gap-4">
-          {["Pharmacy A", "Pharmacy B", "Pharmacy C", "Pharmacy D"].map(
-            (pharmacy) => (
-              <Button
-                key={pharmacy}
-                variant="outline"
-                size="sm"
-                className="md:text-base"
-              >
-                {pharmacy}
-              </Button>
-            ),
-          )}
-        </div>
+        <LogoScroller />
       </section>
     </main>
   );

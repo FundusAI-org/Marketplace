@@ -33,9 +33,12 @@ const SearchBar: FC<SearchBarProps> = ({ goButton }) => {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     const params = new URLSearchParams(searchParams);
-    params.set("query", values.searchQuery);
+    if (values.searchQuery) {
+      params.set("query", values.searchQuery);
+    }
     replace("/search" + "?" + params.toString());
   }
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="ml-4">
