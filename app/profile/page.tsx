@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { User, ShoppingBag, LogOut } from "lucide-react";
 
@@ -24,6 +23,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { signOut } from "@/actions/auth.actions";
 
 export default function CustomerProfilePage() {
   const [user, setUser] = useState({
@@ -77,10 +77,12 @@ export default function CustomerProfilePage() {
               <ShoppingBag className="mr-2 h-4 w-4" />
               Cart
             </Button>
-            <Button variant="default" size="lg" className="w-full">
-              <LogOut className="mr-2 h-4 w-4" />
-              Logout
-            </Button>
+            <form action={signOut}>
+              <Button variant="default" size="lg" className="w-full">
+                <LogOut className="mr-2 h-4 w-4" />
+                Logout
+              </Button>
+            </form>
           </div>
         </aside>
         <div className="-mt-6 flex-1 p-6">

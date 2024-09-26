@@ -1,16 +1,24 @@
 import { Metadata } from "next";
 
 import { UserAuthForm } from "@/components/UserAuthForm";
+import { validateRequest } from "@/lucia";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Authentication",
   description: "Authentication forms built using the components.",
 };
 
-export default function AuthenticationPage() {
-  return (
-    <main className="container flex max-w-6xl items-center justify-center bg-background py-6 md:py-12">
-      <UserAuthForm />;
-    </main>
-  );
+export default async function AuthenticationPage() {
+  const user = await validateRequest();
+
+  if (!user.user) {
+    return (
+      <main className="container flex max-w-6xl items-center justify-center bg-background py-6 md:py-12">
+        <UserAuthForm />
+      </main>
+    );
+  }
+
+  redirect("/");
 }

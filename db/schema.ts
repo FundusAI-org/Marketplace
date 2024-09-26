@@ -11,9 +11,6 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
-import { DrizzlePostgreSQLAdapter } from "@lucia-auth/adapter-drizzle";
-import { db } from ".";
-
 // Enums
 export const orderStatusEnum = pgEnum("order_status", [
   "pending",
@@ -46,7 +43,7 @@ export const usersTable = pgTable("users", {
 
 // Sessions table
 export const sessionsTable = pgTable("session", {
-  id: uuid("id").defaultRandom().primaryKey(),
+  id: text("id").primaryKey(),
   userId: uuid("user_id")
     .notNull()
     .references(() => usersTable.id, { onDelete: "cascade" }),
@@ -56,8 +53,6 @@ export const sessionsTable = pgTable("session", {
   }).notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
-
-const adapter = new DrizzlePostgreSQLAdapter(db, sessionsTable, usersTable);
 
 // Medications table
 export const medicationsTable = pgTable("medications", {

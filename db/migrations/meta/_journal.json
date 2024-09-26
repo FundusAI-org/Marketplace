@@ -15,6 +15,20 @@
       "when": 1727286830252,
       "tag": "0001_wakeful_bastion",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1727322973025,
+      "tag": "0002_mature_sentinels",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1727323441922,
+      "tag": "0003_broken_black_tom",
+      "breakpoints": true
     }
   ]
 }
