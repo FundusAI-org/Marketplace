@@ -62,8 +62,8 @@ export default function CheckoutPage() {
   }, [fundusPointsToUse]);
 
   return (
-    <main className="container min-h-screen bg-background py-6 md:py-12">
-      <h1 className="mb-6 text-3xl font-bold">Checkout</h1>
+    <main className="container min-h-screen max-w-6xl bg-background py-6 md:py-12">
+      <h1 className="ml-2 text-3xl font-bold">Checkout</h1>
       <div className="flex flex-col gap-8 lg:flex-row">
         <div className="lg:w-2/3">
           <div className="mb-6 rounded-lg bg-card p-6">

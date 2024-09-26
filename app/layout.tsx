@@ -23,8 +23,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
+  authmodal,
 }: Readonly<{
   children: React.ReactNode;
+  authmodal: React.ReactNode;
 }>) {
   return (
     <html lang="en">
@@ -37,6 +39,8 @@ export default function RootLayout({
         </div>
 
         <Footer />
+        {authmodal}
+        <div id="modal-root" />
       </body>
     </html>
   );

@@ -6,11 +6,11 @@ import { Button } from "@/components/ui/button";
 
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import SearchBar from "@/components/SearchBar";
-import LogoScroller from "@/components/LogoScroller";
+// import LogoScroller from "@/components/LogoScroller";
 
 export default function HomePage() {
   return (
-    <main className="container py-6 md:py-12">
+    <main className="container max-w-6xl py-6 md:py-12">
       <section className="mb-12 px-4 text-center md:px-0">
         <h1 className="mb-4 text-3xl font-bold md:mb-6 md:text-4xl">
           Find Your Medications
@@ -89,7 +89,7 @@ export default function HomePage() {
         <h2 className="mb-4 text-xl font-bold md:mb-6 md:text-2xl">
           Partner Pharmacies
         </h2>
-        <LogoScroller />
+        {/* <LogoScroller /> */}
       </section>
     </main>
   );

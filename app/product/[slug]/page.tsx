@@ -15,7 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function MedicationDetailPage() {
   return (
-    <main className="container py-6 md:py-12">
+    <main className="container max-w-6xl py-6 md:py-12">
       <div className="flex flex-col gap-8 md:flex-row">
         <div className="md:w-1/2">
           <Image
