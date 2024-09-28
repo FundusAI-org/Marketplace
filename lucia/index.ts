@@ -1,8 +1,8 @@
-import { Lucia, Session, User } from "lucia";
+import { Lucia, Session } from "lucia";
 import adapter from "./adapter";
 import { cookies } from "next/headers";
 import { cache } from "react";
-import { userRoleEnum } from "@/db/schema";
+import { User } from "@/types/db.types";
 
 export const lucia = new Lucia(adapter, {
   sessionCookie: {
@@ -54,14 +54,6 @@ export const validateRequest = cache(
 declare module "lucia" {
   interface Register {
     Lucia: typeof lucia;
-    DatabaseUserAttributes: DatabaseUserAttributes;
+    DatabaseUserAttributes: User;
   }
-}
-
-interface DatabaseUserAttributes {
-  firstName: string;
-  lastName: string;
-  email: string;
-  fundusPoints: number;
-  role: typeof userRoleEnum.enumValues;
 }

@@ -1,11 +1,6 @@
 "use client";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import {
-  Dialog,
-  DialogOverlay,
-  DialogContent,
-  DialogTrigger,
-} from "./ui/dialog";
+import { Dialog, DialogContent, DialogTrigger, DialogTitle } from "./ui/dialog";
 
 import {
   DropdownMenu,
@@ -20,18 +15,17 @@ import { Button } from "./ui/button";
 
 import { useSession } from "@/providers/session.provider";
 import { signOut } from "@/actions/auth.actions";
-import Link from "next/link";
+
 import { User } from "lucide-react";
 import { UserAuthForm } from "./UserAuthForm";
+
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
+import Link from "next/link";
 
 export function UserNav() {
   const { user } = useSession();
   if (!user) {
     return (
-      // <Link href="/auth?action=login">
-
-      // </Link>
-
       <Dialog>
         <DialogTrigger asChild>
           <Button variant="ghost" size="icon">
@@ -39,12 +33,16 @@ export function UserNav() {
             <span className="sr-only">Profile</span>
           </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[425p]">
+        <DialogContent className="sm:max-w-[425px]">
+          <VisuallyHidden.Root>
+            <DialogTitle>Auth Form</DialogTitle>
+          </VisuallyHidden.Root>
           <UserAuthForm />
         </DialogContent>
       </Dialog>
     );
   }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -52,7 +50,7 @@ export function UserNav() {
           <Avatar className="h-8 w-8">
             <AvatarImage src="/avatars/01.png" alt="@shadcn" />
             <AvatarFallback>
-              {user.firstName[0] + user.lastName[0]}
+              {user?.firstName?.charAt(0) + user?.lastName?.charAt(0)}
             </AvatarFallback>
           </Avatar>
         </Button>
@@ -73,9 +71,11 @@ export function UserNav() {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         {user?.role.toString() == "admin" && (
-          <DropdownMenuGroup>
-            <DropdownMenuItem>Admin Dashboard</DropdownMenuItem>
-          </DropdownMenuGroup>
+          <Link href={"/admin"}>
+            <DropdownMenuGroup>
+              <DropdownMenuItem>Admin Dashboard</DropdownMenuItem>
+            </DropdownMenuGroup>
+          </Link>
         )}
 
         <DropdownMenuSeparator />

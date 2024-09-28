@@ -57,10 +57,12 @@ export const sessionsTable = pgTable("session", {
 // Medications table
 export const medicationsTable = pgTable("medications", {
   id: uuid("id").defaultRandom().primaryKey(),
+  slug: text("slug").notNull().unique(),
   name: text("name").notNull(),
   description: text("description"),
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
   inStock: boolean("in_stock").default(true),
+  imageUrl: text("image_url"), // New field for Cloudinary image URL
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")
     .notNull()
@@ -74,6 +76,7 @@ export const pharmaciesTable = pgTable("pharmacies", {
   userId: uuid("user_id")
     .notNull()
     .references(() => usersTable.id, { onDelete: "cascade" }),
+  slug: text("slug").notNull().unique(),
   name: text("name").notNull(),
   address: text("address"),
   city: text("city"),

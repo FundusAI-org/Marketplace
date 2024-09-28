@@ -76,7 +76,7 @@ export function UserAuthForm() {
 
   return (
     <Tabs
-      defaultValue={params.get("action") ?? "register"}
+      defaultValue={params.get("action") ?? "login"}
       className="mx-auto w-[400px] p-4 sm:p-0"
     >
       <TabsList className="grid w-full grid-cols-2">
