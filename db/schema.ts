@@ -174,6 +174,37 @@ export const reviewsTable = pgTable("reviews", {
     .$onUpdate(() => new Date()),
 });
 
+// Cart table
+export const cartTable = pgTable("cart", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => usersTable.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+});
+
+// Cart Items table
+export const cartItemsTable = pgTable("cart_items", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  cartId: uuid("cart_id")
+    .notNull()
+    .references(() => cartTable.id, { onDelete: "cascade" }),
+  medicationId: uuid("medication_id")
+    .notNull()
+    .references(() => medicationsTable.id, { onDelete: "cascade" }),
+  quantity: integer("quantity").notNull(),
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+});
+
 // Relations
 export const usersRelations = relations(usersTable, ({ many, one }) => ({
   orders: many(ordersTable),
@@ -182,11 +213,13 @@ export const usersRelations = relations(usersTable, ({ many, one }) => ({
     fields: [usersTable.id],
     references: [pharmaciesTable.userId],
   }),
+  cart: one(cartTable),
 }));
 
 export const medicationsRelations = relations(medicationsTable, ({ many }) => ({
   orderItems: many(orderItemsTable),
   pharmacyInventory: many(pharmacyInventoryTable),
+  cartItems: many(cartItemsTable),
 }));
 
 export const pharmaciesRelations = relations(
@@ -220,6 +253,25 @@ export const orderItemsRelations = relations(orderItemsTable, ({ one }) => ({
   }),
   medication: one(medicationsTable, {
     fields: [orderItemsTable.medicationId],
+    references: [medicationsTable.id],
+  }),
+}));
+
+export const cartRelations = relations(cartTable, ({ one, many }) => ({
+  user: one(usersTable, {
+    fields: [cartTable.userId],
+    references: [usersTable.id],
+  }),
+  cartItems: many(cartItemsTable),
+}));
+
+export const cartItemsRelations = relations(cartItemsTable, ({ one }) => ({
+  cart: one(cartTable, {
+    fields: [cartItemsTable.cartId],
+    references: [cartTable.id],
+  }),
+  medication: one(medicationsTable, {
+    fields: [cartItemsTable.medicationId],
     references: [medicationsTable.id],
   }),
 }));
@@ -268,3 +320,9 @@ export type SelectHealthLog = typeof healthLogsTable.$inferSelect;
 
 export type InsertReview = typeof reviewsTable.$inferInsert;
 export type SelectReview = typeof reviewsTable.$inferSelect;
+
+export type InsertCart = typeof cartTable.$inferInsert;
+export type SelectCart = typeof cartTable.$inferSelect;
+
+export type InsertCartItem = typeof cartItemsTable.$inferInsert;
+export type SelectCartItem = typeof cartItemsTable.$inferSelect;

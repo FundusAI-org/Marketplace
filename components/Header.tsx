@@ -1,6 +1,6 @@
 "use client";
 
-import { ShoppingCart, User } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { FC } from "react";
@@ -8,6 +8,7 @@ import { FC } from "react";
 import { Button } from "./ui/button";
 import SearchBar from "./SearchBar";
 import { usePathname } from "next/navigation";
+import { UserNav } from "./UserNav";
 
 const Header: FC = () => {
   const pathname = usePathname();
@@ -31,12 +32,8 @@ const Header: FC = () => {
             <ShoppingCart className="h-5 w-5" />
             <span className="sr-only">Cart</span>
           </Button>
-          <Link href="/auth">
-            <Button variant="ghost" size="icon">
-              <User className="h-5 w-5" />
-              <span className="sr-only">Profile</span>
-            </Button>
-          </Link>
+
+          <UserNav />
         </div>
       </div>
     </header>
