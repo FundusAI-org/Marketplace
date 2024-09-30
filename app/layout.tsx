@@ -7,6 +7,8 @@ import Footer from "@/components/Footer";
 import { Toaster } from "sonner";
 import { SessionProvider } from "@/providers/session.provider";
 import { validateRequest } from "@/lucia";
+import { CartProvider } from "@/providers/cart.provider";
+import cartService from "@/services/cart.service";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -27,6 +29,8 @@ export default async function RootLayout({
   modal: React.ReactNode;
 }>) {
   const sessionData = await validateRequest();
+  const cartResponse = await cartService.getCart();
+  const cartData = cartResponse.success ? cartResponse.data : null;
   return (
     <html lang="en" suppressHydrationWarning={true}>
       <body
@@ -35,8 +39,10 @@ export default async function RootLayout({
         <Toaster richColors />
         {modal}
         <SessionProvider value={sessionData}>
-          {children}
-          <Footer />
+          <CartProvider initialValue={cartData}>
+            {children}
+            <Footer />
+          </CartProvider>
         </SessionProvider>
       </body>
     </html>

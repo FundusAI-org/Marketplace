@@ -43,6 +43,20 @@
       "when": 1727550062746,
       "tag": "0005_lame_firebird",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1727574119500,
+      "tag": "0006_fine_crusher_hogan",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1727575546992,
+      "tag": "0007_amazing_mister_fear",
+      "breakpoints": true
     }
   ]
 }

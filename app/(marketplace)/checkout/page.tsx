@@ -3,6 +3,9 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Trash2, AlertCircle } from "lucide-react";
+import { useSession } from "@/providers/session.provider";
+// import { useCart } from "@/contexts/CartContext";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,35 +26,41 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-
-// Mock user data - in a real app, this would come from your auth system
-const mockUser = {
-  isLoggedIn: true,
-  fundusPoints: 100,
-};
+import { useCart } from "@/providers/cart.provider";
+import { removeFromCart } from "@/actions/cart.actions";
 
 export default function CheckoutPage() {
-  const [cartItems, setCartItems] = useState([
-    { id: 1, name: "Medication A", price: 29.99, quantity: 2 },
-    { id: 2, name: "Medication B", price: 39.99, quantity: 1 },
-  ]);
+  const { cart, refreshCart } = useCart();
+  const { user } = useSession();
   const [fundusPointsToUse, setFundusPointsToUse] = useState(0);
   const [fundusPointDiscount, setFundusPointDiscount] = useState(0);
 
-  const subtotal = cartItems.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0,
-  );
+  const subtotal =
+    cart?.items.reduce(
+      (acc, item) => acc + Number(item.price) * item.quantity,
+      0,
+    ) || 0;
   const tax = subtotal * 0.1;
   const total = subtotal + tax - fundusPointDiscount;
 
-  const removeItem = (id) => {
-    setCartItems(cartItems.filter((item) => item.id !== id));
+  const removeItem = async (id: string) => {
+    try {
+      const response = await removeFromCart(id);
+
+      if (!response.success) {
+        throw new Error("Failed to remove item");
+      }
+
+      await refreshCart();
+      toast.success("Item removed from cart");
+    } catch (error) {
+      toast.error("Failed to remove item from cart");
+    }
   };
 
-  const handleFundusPointsChange = (e) => {
+  const handleFundusPointsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Math.floor(Number(e.target.value));
-    if (value >= 0 && value <= mockUser.fundusPoints) {
+    if (value >= 0 && value <= (user?.fundusPoints || 0)) {
       setFundusPointsToUse(value);
     }
   };
@@ -61,6 +70,26 @@ export default function CheckoutPage() {
     setFundusPointDiscount(discount);
   }, [fundusPointsToUse]);
 
+  const handlePlaceOrder = async () => {
+    try {
+      const response = await fetch("/api/orders/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fundusPointsUsed: fundusPointsToUse }),
+      });
+      if (!response.ok) throw new Error("Failed to place order");
+      await refreshCart();
+      toast.success("Order placed successfully");
+      // Redirect to order confirmation page or clear cart
+    } catch (error) {
+      toast.error("Failed to place order");
+    }
+  };
+
+  useEffect(() => {
+    refreshCart();
+  }, [refreshCart]);
+
   return (
     <main className="container min-h-screen max-w-6xl bg-background py-6 md:py-12">
       <h1 className="ml-2 text-3xl font-bold">Checkout</h1>
@@ -68,36 +97,46 @@ export default function CheckoutPage() {
         <div className="lg:w-2/3">
           <div className="mb-6 rounded-lg bg-card p-6">
             <h2 className="mb-4 text-xl font-semibold">Your Cart</h2>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Product</TableHead>
-                  <TableHead>Quantity</TableHead>
-                  <TableHead>Price</TableHead>
-                  <TableHead></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {cartItems.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell>{item.name}</TableCell>
-                    <TableCell>{item.quantity}</TableCell>
-                    <TableCell>
-                      ${(item.price * item.quantity).toFixed(2)}
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeItem(item.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
+            {cart && cart.items.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Product</TableHead>
+                    <TableHead>Quantity</TableHead>
+                    <TableHead>Price</TableHead>
+                    <TableHead></TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {cart.items.map((item) => (
+                    <TableRow key={item.id}>
+                      <TableCell>{item.medication.name}</TableCell>
+                      <TableCell>{item.quantity}</TableCell>
+                      <TableCell>
+                        ${(Number(item.price) * item.quantity).toFixed(2)}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeItem(item.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Your cart is empty</AlertTitle>
+                <AlertDescription>
+                  Add some items to your cart before checking out.
+                </AlertDescription>
+              </Alert>
+            )}
           </div>
           <div className="rounded-lg bg-card p-6">
             <h2 className="mb-4 text-xl font-semibold">Shipping Information</h2>
@@ -167,7 +206,7 @@ export default function CheckoutPage() {
             </div>
             <div className="mb-4">
               <Label htmlFor="fundusPoints">Use Fundus Points</Label>
-              {mockUser.isLoggedIn ? (
+              {user ? (
                 <>
                   <Input
                     id="fundusPoints"
@@ -176,10 +215,10 @@ export default function CheckoutPage() {
                     value={fundusPointsToUse}
                     onChange={handleFundusPointsChange}
                     min={0}
-                    max={mockUser.fundusPoints}
+                    max={user.fundusPoints ?? 0}
                   />
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Available: {mockUser.fundusPoints} points (1 point = $2
+                    Available: {user.fundusPoints} points (1 point = $2
                     discount)
                   </p>
                 </>
@@ -197,7 +236,13 @@ export default function CheckoutPage() {
                 </Alert>
               )}
             </div>
-            <Button className="w-full">Place Order</Button>
+            <Button
+              className="w-full"
+              onClick={handlePlaceOrder}
+              disabled={!cart || cart.items.length === 0}
+            >
+              Place Order
+            </Button>
           </div>
         </div>
       </div>

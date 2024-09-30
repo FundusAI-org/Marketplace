@@ -62,7 +62,13 @@ export const medicationsTable = pgTable("medications", {
   description: text("description"),
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
   inStock: boolean("in_stock").default(true),
-  imageUrl: text("image_url"), // New field for Cloudinary image URL
+  imageUrl: text("image_url"),
+  createdBy: uuid("created_by")
+    .notNull()
+    .references(() => usersTable.id, { onDelete: "cascade" }),
+  pharmacyId: uuid("pharmacy_id")
+    .notNull()
+    .references(() => pharmaciesTable.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")
     .notNull()
@@ -219,11 +225,23 @@ export const usersRelations = relations(usersTable, ({ many, one }) => ({
   cart: one(cartTable),
 }));
 
-export const medicationsRelations = relations(medicationsTable, ({ many }) => ({
-  orderItems: many(orderItemsTable),
-  pharmacyInventory: many(pharmacyInventoryTable),
-  cartItems: many(cartItemsTable),
-}));
+export const medicationsRelations = relations(
+  medicationsTable,
+  ({ many, one }) => ({
+    orderItems: many(orderItemsTable),
+    pharmacyInventory: many(pharmacyInventoryTable),
+    cartItems: many(cartItemsTable),
+    reviews: many(reviewsTable),
+    createdBy: one(usersTable, {
+      fields: [medicationsTable.createdBy],
+      references: [usersTable.id],
+    }),
+    pharmacy: one(pharmaciesTable, {
+      fields: [medicationsTable.pharmacyId],
+      references: [pharmaciesTable.id],
+    }),
+  }),
+);
 
 export const pharmaciesRelations = relations(
   pharmaciesTable,

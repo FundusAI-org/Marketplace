@@ -12,22 +12,37 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import medicationService from "@/services/medication.service";
 
-export default function MedicationDetailPage() {
+interface MedicationDetailPageProps {
+  params: {
+    slug: string;
+  };
+}
+
+export default async function MedicationDetailPage({
+  params: { slug },
+}: MedicationDetailPageProps) {
+  const { data, success } = await medicationService.getMedicationBySlug(slug);
+
+  if (!success) {
+    throw new Error("Page not found");
+  }
+
   return (
     <main className="container max-w-6xl py-6 md:py-12">
       <div className="flex flex-col gap-8 md:flex-row">
         <div className="md:w-1/2">
           <Image
-            src="/placeholder.svg?height=400&width=400"
-            alt="Medication Name"
+            src={data.imageUrl ?? "/placeholder.svg?height=400&width=400"}
+            alt={data.name}
             width={400}
             height={400}
             className="w-full rounded-lg"
           />
         </div>
         <div className="md:w-1/2">
-          <h1 className="mb-4 text-3xl font-bold">Medication Name</h1>
+          <h1 className="mb-4 text-3xl font-bold">{data.name}</h1>
           <div className="mb-4 flex items-center">
             <div className="mr-2 flex items-center">
               {[1, 2, 3, 4, 5].map((star) => (
@@ -37,12 +52,17 @@ export default function MedicationDetailPage() {
                 />
               ))}
             </div>
-            <span className="text-sm text-muted-foreground">(128 reviews)</span>
+            <span className="text-sm text-muted-foreground">
+              ({data.reviews.length} reviews)
+            </span>
           </div>
-          <p className="mb-4 text-2xl font-bold">$XX.XX</p>
-          <p className="mb-6 text-muted-foreground">
-            Brief description of the medication and its primary uses.
+          <p className="mb-4 text-2xl font-bold">${data.price}</p>
+          <p className="mb-6 text-muted-foreground">{data.description}</p>
+
+          <p>
+            <span className="font-bold">{data.pharmacy.name}</span>
           </p>
+
           <div className="mb-6 flex items-center gap-4">
             <Select>
               <SelectTrigger className="w-[180px]">
@@ -60,7 +80,7 @@ export default function MedicationDetailPage() {
           </div>
           <div className="mb-6 flex items-center text-sm text-muted-foreground">
             <Info className="mr-2 h-4 w-4" />
-            <span>Earn 50 Fundus Points with this purchase</span>
+            <span>You can use your fundus points to buy this medication</span>
           </div>
           <Tabs defaultValue="details">
             <TabsList>

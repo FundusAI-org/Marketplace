@@ -1,14 +1,21 @@
-import Image from "next/image";
-
 import { Search, ShoppingCart, User } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import SearchBar from "@/components/SearchBar";
-// import LogoScroller from "@/components/LogoScroller";
+import medicationService from "@/services/medication.service";
 
-export default function HomePage() {
+import FeaturedMeds from "@/components/FeaturedMeds";
+
+export default async function HomePage() {
+  const { data: featuredMeds, success } =
+    await medicationService.getFeaturedMedications();
+
+  // const { data: partneredPharmacies, success: pharmacySuccess } =
+  //   await medicationService.getFeaturedMedications();
+
+  if (!success) {
+    throw new Error("Server error fetching featured medications");
+  }
+
   return (
     <main className="container max-w-6xl py-6 md:py-12">
       <section className="mb-12 px-4 text-center md:px-0">
@@ -25,29 +32,7 @@ export default function HomePage() {
         <h2 className="mb-4 text-xl font-bold md:mb-6 md:text-2xl">
           Featured Medications
         </h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
-          {[1, 2, 3, 4].map((item) => (
-            <Card key={item}>
-              <CardContent className="p-4">
-                <Image
-                  src={`/placeholder.svg?height=200&width=200`}
-                  alt={`Medication ${item}`}
-                  width={200}
-                  height={200}
-                  className="mb-4 h-40 w-full rounded object-cover md:h-48"
-                />
-                <h3 className="mb-2 font-semibold">Medication Name</h3>
-                <p className="mb-2 text-sm text-muted-foreground">
-                  Brief description of the medication
-                </p>
-                <p className="font-bold">$XX.XX</p>
-              </CardContent>
-              <CardFooter>
-                <Button className="w-full">Add to Cart</Button>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
+        <FeaturedMeds featuredMeds={featuredMeds} />
       </section>
 
       <section className="mb-12 px-4 md:px-0">

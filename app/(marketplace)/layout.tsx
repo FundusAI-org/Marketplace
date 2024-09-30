@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import Header from "@/components/Header";
+// import { CartProvider } from "@/providers/cart.provider";
 
 export const metadata: Metadata = {
   title: "FundusAI Marketplace",
@@ -15,9 +16,7 @@ export default function MarketPlaceLayout({
   return (
     <div>
       <Header />
-      <div className="flex min-h-screen w-full items-center justify-center">
-        {children}
-      </div>
+      <div className="flex min-h-screen w-full justify-center">{children}</div>
     </div>
   );
 }

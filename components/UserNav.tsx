@@ -66,8 +66,12 @@ export function UserNav() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>Profile</DropdownMenuItem>
-          <DropdownMenuItem>Billing</DropdownMenuItem>
+          <Link href={"/profile"}>
+            <DropdownMenuItem>Profile</DropdownMenuItem>
+          </Link>
+          <Link href={"/cart"}>
+            <DropdownMenuItem>Cart</DropdownMenuItem>
+          </Link>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         {user?.role.toString() == "admin" && (

@@ -43,12 +43,12 @@ export const columns: ColumnDef<User>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "id",
+    accessorKey: "sn",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="ID" />
+      <DataTableColumnHeader column={column} title="S/N" />
     ),
     cell: ({ row }) => (
-      <div className="w-[80px] font-medium">{row.getValue("id")}</div>
+      <div className="w-[40px] font-medium">{row.index + 1}</div>
     ),
     enableSorting: false,
     enableHiding: false,
@@ -87,8 +87,8 @@ export const columns: ColumnDef<User>[] = [
             role === "admin"
               ? "destructive"
               : role === "pharmacy"
-                ? "secondary"
-                : "outline"
+                ? "outline"
+                : "default"
           }
         >
           {role.charAt(0).toUpperCase() + role.slice(1)}

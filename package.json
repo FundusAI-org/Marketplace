@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "drizzle:migrate": "drizzle-kit migrate",
-    "db:seed": "dotenv npx tsx ./db/seed.ts"
+    "drizzle:generate": "drizzle-kit generate",
+    "db:seed": "dotenv npx tsx ./db/seed.ts",
+    "db:clear": "dotenv npx tsx ./db/emptyTables.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
@@ -37,6 +39,7 @@
     "country-state-city": "^3.2.1",
     "dotenv": "^16.4.5",
     "drizzle-orm": "^0.33.0",
+    "embla-carousel-react": "^8.3.0",
     "lucia": "^3.2.0",
     "lucide-react": "^0.445.0",
     "next": "14.2.13",
