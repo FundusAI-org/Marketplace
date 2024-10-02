@@ -4,9 +4,10 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { SelectCart, SelectCartItem } from "@/db/schema";
 import { getCart } from "@/actions/cart.actions";
 import { useSession } from "./session.provider";
+import { Medication } from "@/types/db.types";
 
 interface CartWithItems extends SelectCart {
-  items: SelectCartItem[];
+  items: (SelectCartItem & { medication: Medication })[];
 }
 
 interface CartContextType {

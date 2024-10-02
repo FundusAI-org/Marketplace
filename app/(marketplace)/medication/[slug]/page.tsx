@@ -4,13 +4,6 @@ import { Star, Info } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import medicationService from "@/services/medication.service";
 
@@ -64,18 +57,6 @@ export default async function MedicationDetailPage({
           </p>
 
           <div className="mb-6 flex items-center gap-4">
-            <Select>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select quantity" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1">1</SelectItem>
-                <SelectItem value="2">2</SelectItem>
-                <SelectItem value="3">3</SelectItem>
-                <SelectItem value="4">4</SelectItem>
-                <SelectItem value="5">5</SelectItem>
-              </SelectContent>
-            </Select>
             <Button size="lg">Add to Cart</Button>
           </div>
           <div className="mb-6 flex items-center text-sm text-muted-foreground">

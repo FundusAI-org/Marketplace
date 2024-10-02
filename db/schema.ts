@@ -34,6 +34,7 @@ export const usersTable = pgTable("users", {
   lastName: text("last_name"),
   role: userRoleEnum("role").notNull().default("customer"),
   fundusPoints: integer("fundus_points").default(0),
+  solanaWalletAddress: text("solana_wallet_address"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")
     .notNull()
@@ -214,6 +215,40 @@ export const cartItemsTable = pgTable("cart_items", {
     .$onUpdate(() => new Date()),
 });
 
+// Solana Transactions
+export const solanaTransactionsTable = pgTable("solana_transactions", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => usersTable.id, { onDelete: "cascade" }),
+  orderId: uuid("order_id")
+    .notNull()
+    .references(() => ordersTable.id, { onDelete: "cascade" }),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  signature: text("signature").notNull(),
+  status: text("status").notNull(), // 'pending', 'completed', 'failed'
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+});
+
+// Add relations for the new table
+export const solanaTransactionsRelations = relations(
+  solanaTransactionsTable,
+  ({ one }) => ({
+    user: one(usersTable, {
+      fields: [solanaTransactionsTable.userId],
+      references: [usersTable.id],
+    }),
+    order: one(ordersTable, {
+      fields: [solanaTransactionsTable.orderId],
+      references: [ordersTable.id],
+    }),
+  }),
+);
+
 // Relations
 export const usersRelations = relations(usersTable, ({ many, one }) => ({
   orders: many(ordersTable),
@@ -347,3 +382,8 @@ export type SelectCart = typeof cartTable.$inferSelect;
 
 export type InsertCartItem = typeof cartItemsTable.$inferInsert;
 export type SelectCartItem = typeof cartItemsTable.$inferSelect;
+
+export type InsertSolanaTransaction =
+  typeof solanaTransactionsTable.$inferInsert;
+export type SelectSolanaTransaction =
+  typeof solanaTransactionsTable.$inferSelect;

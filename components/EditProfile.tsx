@@ -9,6 +9,9 @@ import {
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
+import { UpdateSolanaWallet } from "./UpdateSolanaAddress";
+import { validateRequest } from "@/lucia";
+// import { useSession } from "@/providers/session.provider";
 
 interface EditProfileProps {
   user: {
@@ -18,7 +21,9 @@ interface EditProfileProps {
   };
 }
 
-const EditProfile: FC<EditProfileProps> = ({}) => {
+const EditProfile: FC<EditProfileProps> = async ({}) => {
+  // const { user } = useSession();
+  const { user } = await validateRequest();
   return (
     <Card>
       <CardHeader>
@@ -66,6 +71,9 @@ const EditProfile: FC<EditProfileProps> = ({}) => {
             Update Profile
           </Button>
         </form>
+        <UpdateSolanaWallet
+          currentAddress={user?.solanaWalletAddress ?? null}
+        />
       </CardContent>
     </Card>
   );
