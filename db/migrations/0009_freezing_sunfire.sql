@@ -1,0 +1,1 @@
+ALTER TABLE "solana_transactions" ADD COLUMN "amount_sol" numeric(18, 9) NOT NULL;

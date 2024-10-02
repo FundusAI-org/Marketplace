@@ -65,23 +65,14 @@ class MedicationService {
     }
   }
 
-  async getMedicationBySlug(slug: string) {
+  async getMedicationBySlug(slug: string): Promise<Response<Medication>> {
     try {
       const medication = await db.query.medicationsTable.findFirst({
         where: eq(medicationsTable.slug, slug),
         with: {
-          // createdBy: {
-          //   columns: {
-          //     id: true,
-          //     email: true,
-          //     role: true,
-          //   },
-          // },
           reviews: {
             columns: {
               id: true,
-              // userId: true,
-              // medicationId: true,
               rating: true,
               comment: true,
             },

@@ -244,7 +244,7 @@ export default function CheckoutPage() {
                   </Button>
                 ) : (
                   <SolanaPayment
-                    amount={total}
+                    amountUSD={total}
                     onPaymentComplete={handleSolanaPaymentComplete}
                   />
                 )}

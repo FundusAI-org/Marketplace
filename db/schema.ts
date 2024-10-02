@@ -225,6 +225,7 @@ export const solanaTransactionsTable = pgTable("solana_transactions", {
     .notNull()
     .references(() => ordersTable.id, { onDelete: "cascade" }),
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  amountSOL: decimal("amount_sol", { precision: 18, scale: 9 }).notNull(),
   signature: text("signature").notNull(),
   status: text("status").notNull(), // 'pending', 'completed', 'failed'
   createdAt: timestamp("created_at").notNull().defaultNow(),

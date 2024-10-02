@@ -6,7 +6,7 @@ import {
   LAMPORTS_PER_SOL,
 } from "@solana/web3.js";
 import { db } from "@/db";
-import { ordersTable, solanaTransactionsTable } from "@/db/schema";
+import { ordersTable, solanaTransactionsTable, usersTable } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 class SolanaService {
@@ -23,28 +23,64 @@ class SolanaService {
     );
   }
 
+  async getUserSolanaWallet(userId: string): Promise<string | null> {
+    const user = await db
+      .select({ solanaWalletAddress: usersTable.solanaWalletAddress })
+      .from(usersTable)
+      .where(eq(usersTable.id, userId))
+      .limit(1);
+
+    return user[0]?.solanaWalletAddress || null;
+  }
+
+  async getSolPrice(): Promise<number> {
+    // In a production environment, you should use a reliable price feed
+    // This is a placeholder implementation
+    const response = await fetch(
+      "https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd",
+    );
+    const data = await response.json();
+    return data.solana.usd;
+  }
+
+  async convertUSDToSOL(amountUSD: number): Promise<number> {
+    const solPrice = await this.getSolPrice();
+    return amountUSD / solPrice;
+  }
+
   async createTransaction(
-    amount: number,
-    fromPubkey: PublicKey,
-  ): Promise<Transaction> {
+    amountUSD: number,
+    userId: string,
+  ): Promise<{ transaction: Transaction; amountSOL: number } | null> {
+    const userWalletAddress = await this.getUserSolanaWallet(userId);
+    if (!userWalletAddress) {
+      return null;
+    }
+
+    const solPrice = await this.getSolPrice();
+    const amountSOL = amountUSD / solPrice;
+    const lamports = Math.round(amountSOL * LAMPORTS_PER_SOL);
+
+    const fromPubkey = new PublicKey(userWalletAddress);
     const { blockhash } = await this.connection.getLatestBlockhash();
     const transaction = new Transaction().add(
       SystemProgram.transfer({
         fromPubkey,
         toPubkey: this.merchantPublicKey,
-        lamports: amount * LAMPORTS_PER_SOL,
+        lamports,
       }),
     );
 
     transaction.recentBlockhash = blockhash;
     transaction.feePayer = fromPubkey;
 
-    return transaction;
+    return { transaction, amountSOL };
   }
 
   async confirmTransaction(
     signature: string,
-    amount: number,
+    amountUSD: number,
+    amountSOL: number,
     userId: string,
     orderId: string,
   ): Promise<{ success: boolean; transactionId?: string }> {
@@ -69,7 +105,7 @@ class SolanaService {
 
     if (
       info.destination !== this.merchantPublicKey.toBase58() ||
-      info.lamports !== amount * LAMPORTS_PER_SOL
+      info.lamports !== Math.round(amountSOL * LAMPORTS_PER_SOL)
     ) {
       throw new Error("Invalid transaction details");
     }
@@ -86,7 +122,8 @@ class SolanaService {
       .values({
         userId,
         orderId,
-        amount,
+        amount: amountUSD,
+        amountSOL,
         signature,
         status: "completed",
       })

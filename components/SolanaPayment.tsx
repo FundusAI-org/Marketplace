@@ -14,16 +14,17 @@ import {
 import Link from "next/link";
 
 interface SolanaPaymentProps {
-  amount: number;
+  amountUSD: number;
   onPaymentComplete: () => void;
 }
 
 const SolanaPayment: FC<SolanaPaymentProps> = ({
-  amount,
+  amountUSD,
   onPaymentComplete,
 }) => {
   const { publicKey, signTransaction } = useWallet();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [amountSOL, setAmountSOL] = useState<number | null>(null);
 
   const handlePayment = async () => {
     if (!publicKey || !signTransaction) {
@@ -33,7 +34,7 @@ const SolanaPayment: FC<SolanaPaymentProps> = ({
 
     setIsProcessing(true);
     try {
-      const createResult = await createSolanaTransaction(amount);
+      const createResult = await createSolanaTransaction(amountUSD);
       if (!createResult.success) {
         if (
           createResult.error ===
@@ -46,6 +47,8 @@ const SolanaPayment: FC<SolanaPaymentProps> = ({
         }
         throw new Error(createResult.error);
       }
+
+      setAmountSOL(createResult.amountSOL);
 
       const transaction = Transaction.from(
         Buffer.from(createResult.transaction, "base64"),
@@ -68,7 +71,12 @@ const SolanaPayment: FC<SolanaPaymentProps> = ({
         throw new Error("Transaction failed");
       }
 
-      const confirmResult = await confirmSolanaPayment(signature, amount);
+      const confirmResult = await confirmSolanaPayment(
+        signature,
+        amountUSD,
+        createResult.amountSOL,
+        orderId,
+      );
       if (!confirmResult.success) {
         throw new Error(confirmResult.error);
       }
@@ -87,20 +95,26 @@ const SolanaPayment: FC<SolanaPaymentProps> = ({
     <div className="flex flex-col items-center gap-4">
       <WalletMultiButton />
       {publicKey ? (
-        <Button
-          onClick={handlePayment}
-          disabled={isProcessing}
-          className="w-full"
-        >
-          {isProcessing ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Processing...
-            </>
-          ) : (
-            `Pay ${amount} SOL`
-          )}
-        </Button>
+        <>
+          <p className="text-sm text-muted-foreground">
+            Amount to pay: ${amountUSD.toFixed(2)} USD
+            {amountSOL !== null && ` (≈ ${amountSOL.toFixed(5)} SOL)`}
+          </p>
+          <Button
+            onClick={handlePayment}
+            disabled={isProcessing}
+            className="w-full"
+          >
+            {isProcessing ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              `Pay with SOL`
+            )}
+          </Button>
+        </>
       ) : (
         <div className="text-center">
           <p className="mb-2">

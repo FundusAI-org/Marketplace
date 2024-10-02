@@ -2,21 +2,16 @@
 
 import { validateRequest } from "@/lucia";
 import { solanaService } from "@/services/solana.service";
-import { PublicKey } from "@solana/web3.js";
 
-export async function createSolanaTransaction(amount: number) {
+export async function createSolanaTransaction(amountUSD: number) {
   const { user } = await validateRequest();
   if (!user) {
-    throw new Error("Unauthorized");
+    return { success: false, error: "Unauthorized" };
   }
 
   try {
-    const fromPubkey = new PublicKey(user.solanaWalletAddress);
-    const transaction = await solanaService.createTransaction(
-      amount,
-      fromPubkey,
-    );
-    if (!transaction) {
+    const result = await solanaService.createTransaction(amountUSD, user.id);
+    if (!result) {
       return {
         success: false,
         error: "No Solana wallet address associated with this account",
@@ -24,9 +19,10 @@ export async function createSolanaTransaction(amount: number) {
     }
     return {
       success: true,
-      transaction: transaction
+      transaction: result.transaction
         .serialize({ requireAllSignatures: false })
         .toString("base64"),
+      amountSOL: result.amountSOL,
     };
   } catch (error) {
     console.error("Error creating Solana transaction:", error);
@@ -34,19 +30,26 @@ export async function createSolanaTransaction(amount: number) {
   }
 }
 
-export async function confirmSolanaPayment(signature: string, amount: number) {
+export async function confirmSolanaPayment(
+  signature: string,
+  amountUSD: number,
+  amountSOL: number,
+  orderId: string,
+) {
   const { user } = await validateRequest();
   if (!user) {
-    throw new Error("Unauthorized");
+    return { success: false, error: "Unauthorized" };
   }
 
   try {
     const result = await solanaService.confirmTransaction(
       signature,
-      amount,
+      amountUSD,
+      amountSOL,
       user.id,
+      orderId,
     );
-    return { success: true, orderId: result.orderId };
+    return { success: true, transactionId: result.transactionId };
   } catch (error) {
     console.error("Error confirming Solana payment:", error);
     return { success: false, error: "Failed to confirm payment" };
