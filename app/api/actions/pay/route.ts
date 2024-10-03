@@ -4,8 +4,9 @@ import {
   ActionPostResponse,
   createPostResponse,
   ActionPostRequest,
-  createActionHeaders,
+  // createActionHeaders,
   ActionError,
+  ACTIONS_CORS_HEADERS,
 } from "@solana/actions";
 import {
   clusterApiUrl,
@@ -17,9 +18,11 @@ import {
 } from "@solana/web3.js";
 
 // create the standard headers for this route (including CORS)
-const headers = createActionHeaders();
 
-export const OPTIONS = async () => Response.json(null, { headers });
+export const OPTIONS = async () =>
+  Response.json(null, {
+    headers: ACTIONS_CORS_HEADERS,
+  });
 
 export const POST = async (req: Request) => {
   try {
@@ -87,7 +90,7 @@ export const POST = async (req: Request) => {
     });
 
     return Response.json(payload, {
-      headers,
+      headers: ACTIONS_CORS_HEADERS,
     });
   } catch (err) {
     console.log(err);
@@ -95,7 +98,7 @@ export const POST = async (req: Request) => {
     if (typeof err == "string") actionError.message = err;
     return Response.json(actionError, {
       status: 400,
-      headers,
+      headers: ACTIONS_CORS_HEADERS,
     });
   }
 };

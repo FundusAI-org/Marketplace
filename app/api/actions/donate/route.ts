@@ -8,8 +8,9 @@ import {
   createPostResponse,
   ActionGetResponse,
   ActionPostRequest,
-  createActionHeaders,
+  // createActionHeaders,
   ActionError,
+  ACTIONS_CORS_HEADERS,
 } from "@solana/actions";
 import {
   clusterApiUrl,
@@ -21,7 +22,7 @@ import {
 } from "@solana/web3.js";
 
 // create the standard headers for this route (including CORS)
-const headers = createActionHeaders();
+const headers = ACTIONS_CORS_HEADERS;
 
 export const GET = async (req: Request) => {
   try {

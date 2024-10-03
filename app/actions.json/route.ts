@@ -1,8 +1,13 @@
 import medicationService from "@/services/medication.service";
-import { createActionHeaders, ActionError, ActionsJson } from "@solana/actions";
+import {
+  // createActionHeaders,
+  ActionError,
+  ActionsJson,
+  ACTIONS_CORS_HEADERS,
+} from "@solana/actions";
 
 // create the standard headers for this route (including CORS)
-const headers = createActionHeaders();
+const headers = ACTIONS_CORS_HEADERS;
 
 export async function GET() {
   try {
