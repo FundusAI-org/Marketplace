@@ -34,7 +34,6 @@ export async function confirmSolanaPayment(
   signature: string,
   amountUSD: number,
   amountSOL: number,
-  orderId: string,
 ) {
   const { user } = await validateRequest();
   if (!user) {
@@ -47,7 +46,6 @@ export async function confirmSolanaPayment(
       amountUSD,
       amountSOL,
       user.id,
-      orderId,
     );
     return { success: true, transactionId: result.transactionId };
   } catch (error) {

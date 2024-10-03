@@ -55,6 +55,7 @@ export async function seed() {
             lastName: faker.person.lastName(),
             fundusPoints: faker.number.int({ min: 0, max: 100 }),
             role: "customer",
+            solanaWalletAddress: null,
           };
         }),
       );
@@ -68,6 +69,7 @@ export async function seed() {
         lastName: "User",
         role: "admin",
         fundusPoints: faker.number.int({ min: 0, max: 100 }),
+        solanaWalletAddress: null,
       },
       {
         id: faker.string.uuid(),
@@ -77,6 +79,7 @@ export async function seed() {
         lastName: "Doe",
         role: "customer",
         fundusPoints: faker.number.int({ min: 0, max: 100 }),
+        solanaWalletAddress: null,
       },
       {
         id: faker.string.uuid(),
@@ -86,6 +89,7 @@ export async function seed() {
         lastName: "Smith",
         role: "pharmacy",
         fundusPoints: faker.number.int({ min: 0, max: 100 }),
+        solanaWalletAddress: null,
       },
       ...additionalUsers,
     ];

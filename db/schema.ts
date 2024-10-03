@@ -19,20 +19,27 @@ export const orderStatusEnum = pgEnum("order_status", [
   "delivered",
   "cancelled",
 ]);
+
 export const userRoleEnum = pgEnum("user_role", [
   "customer",
   "admin",
   "pharmacy",
 ]);
 
+export const solanaTransactionStatusEnum = pgEnum("solana_transaction_status", [
+  "pending",
+  "completed",
+  "failed",
+]);
+
 // Users table
 export const usersTable = pgTable("users", {
-  id: uuid("id").defaultRandom().primaryKey(),
+  id: uuid("id").primaryKey(),
   email: text("email").notNull().unique(),
-  passwordHash: text("password_hash"),
-  firstName: text("first_name"),
-  lastName: text("last_name"),
-  role: userRoleEnum("role").notNull().default("customer"),
+  passwordHash: text("password_hash").notNull(),
+  firstName: text("first_name").notNull(),
+  lastName: text("last_name").notNull(),
+  role: userRoleEnum("role").default("customer").notNull(),
   fundusPoints: integer("fundus_points").default(0),
   solanaWalletAddress: text("solana_wallet_address"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -60,10 +67,10 @@ export const medicationsTable = pgTable("medications", {
   id: uuid("id").defaultRandom().primaryKey(),
   slug: text("slug").notNull().unique(),
   name: text("name").notNull(),
-  description: text("description"),
+  description: text("description").notNull(),
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
-  inStock: boolean("in_stock").default(true),
-  imageUrl: text("image_url"),
+  inStock: boolean("in_stock").default(true).notNull(),
+  imageUrl: text("image_url").notNull(),
   createdBy: uuid("created_by")
     .notNull()
     .references(() => usersTable.id, { onDelete: "cascade" }),
@@ -123,7 +130,7 @@ export const ordersTable = pgTable("orders", {
   pharmacyId: uuid("pharmacy_id")
     .notNull()
     .references(() => pharmaciesTable.id, { onDelete: "cascade" }),
-  status: orderStatusEnum("status").default("pending"),
+  status: orderStatusEnum("status").default("pending").notNull(),
   totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
   fundusPointsUsed: integer("fundus_points_used").default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -187,7 +194,7 @@ export const reviewsTable = pgTable("reviews", {
 // Cart table
 export const cartTable = pgTable("cart", {
   id: uuid("id").defaultRandom().primaryKey(),
-  userId: uuid("user_id")
+  userId: uuid("user_id") // Change this from text to uuid
     .notNull()
     .references(() => usersTable.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -219,15 +226,15 @@ export const cartItemsTable = pgTable("cart_items", {
 export const solanaTransactionsTable = pgTable("solana_transactions", {
   id: uuid("id").defaultRandom().primaryKey(),
   userId: uuid("user_id")
-    .notNull()
-    .references(() => usersTable.id, { onDelete: "cascade" }),
-  orderId: uuid("order_id")
-    .notNull()
-    .references(() => ordersTable.id, { onDelete: "cascade" }),
+    .references(() => usersTable.id, { onDelete: "cascade" })
+    .notNull(),
+  orderId: uuid("order_id").references(() => ordersTable.id, {
+    onDelete: "cascade",
+  }),
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
-  amountSOL: decimal("amount_sol", { precision: 18, scale: 9 }).notNull(),
-  signature: text("signature").notNull(),
-  status: text("status").notNull(), // 'pending', 'completed', 'failed'
+  amountSOL: decimal("amount_sol", { precision: 20, scale: 9 }).notNull(),
+  signature: text("signature").notNull().unique(),
+  status: solanaTransactionStatusEnum("status").notNull().default("pending"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")
     .notNull()
@@ -259,6 +266,7 @@ export const usersRelations = relations(usersTable, ({ many, one }) => ({
     references: [pharmaciesTable.userId],
   }),
   cart: one(cartTable),
+  solanaTransactions: many(solanaTransactionsTable),
 }));
 
 export const medicationsRelations = relations(
@@ -352,7 +360,10 @@ export const reviewsRelations = relations(reviewsTable, ({ one }) => ({
 }));
 
 // Types
-export type InsertUser = typeof usersTable.$inferInsert;
+export type InsertUser = typeof usersTable.$inferInsert & {
+  role: (typeof usersTable.$inferSelect)["role"];
+};
+
 export type SelectUser = typeof usersTable.$inferSelect;
 
 export type InsertMedication = typeof medicationsTable.$inferInsert;

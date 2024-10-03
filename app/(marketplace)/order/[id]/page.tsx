@@ -46,6 +46,8 @@ export default function ViewOrderDetailsPage({
 }) {
   const [order, setOrder] = useState<Order | null>(null);
 
+  console.log(params);
+
   useEffect(() => {
     // In a real application, you would fetch the order details from an API
     // For this example, we'll use mock data

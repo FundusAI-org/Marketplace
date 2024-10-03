@@ -31,7 +31,7 @@ const CartSheet: FC<CartSheetProps> = ({}) => {
         await refreshCart();
         toast.info("Cart updated successfully");
       } else {
-        toast.error(result.data || "Failed to update cart");
+        toast.error(result.data.toString() || "Failed to update cart");
       }
     } catch (error) {
       toast.error("An error occurred while updating the cart");

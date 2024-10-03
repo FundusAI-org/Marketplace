@@ -1,0 +1,1 @@
+ALTER TABLE "solana_transactions" ADD COLUMN "status" "solana_transaction_status" DEFAULT 'pending' NOT NULL;

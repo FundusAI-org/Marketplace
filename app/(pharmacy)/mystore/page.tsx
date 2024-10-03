@@ -1,8 +1,6 @@
 import { FC } from "react";
 
-interface PharmacistHomePageProps {}
-
-const PharmacistHomePage: FC<PharmacistHomePageProps> = ({}) => {
+const PharmacistHomePage: FC = ({}) => {
   return <div>PharmacistHomePage</div>;
 };
 

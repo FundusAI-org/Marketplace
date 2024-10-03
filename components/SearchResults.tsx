@@ -14,13 +14,11 @@ import { Slider } from "@/components/ui/slider";
 import { Medication, Pharmacy } from "@/types/db.types";
 import { useRouter } from "next/navigation";
 import MedicationCard from "./MedicationCard";
+import { SearchResult } from "@/services/search.service";
 
 interface SearchResultsProps {
   query: string;
-  results: {
-    medications: (Medication & { pharmacy: Pharmacy })[];
-    pharmacies: Pharmacy[];
-  };
+  results: SearchResult;
   page: number;
 }
 

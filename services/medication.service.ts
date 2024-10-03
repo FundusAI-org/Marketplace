@@ -65,7 +65,7 @@ class MedicationService {
     }
   }
 
-  async getMedicationBySlug(slug: string): Promise<Response<Medication>> {
+  async getMedicationBySlug(slug: string): Promise<Response<any>> {
     try {
       const medication = await db.query.medicationsTable.findFirst({
         where: eq(medicationsTable.slug, slug),
@@ -249,17 +249,24 @@ class MedicationService {
     }
 
     try {
-      // const [createdMed] = await db
-      // //   .insert(medicationsTable)
-      // //   .values({
-      // //     ...newMedication,
-      // //     createdBy: user.id,
-      // //   })
-      // //   .returning();
-      // // return {
-      // //   success: true,
-      // //   data: createdMed,
-      // // };
+      const [createdMed] = await db
+        .insert(medicationsTable)
+        .values({
+          ...newMedication,
+          description: newMedication.description,
+          name: newMedication.name,
+          price: newMedication.price,
+          imageUrl: newMedication.imageUrl,
+          pharmacyId: newMedication.pharmacyId,
+          slug: newMedication.slug,
+          createdBy: user.id,
+        })
+        // .values(newMedication)
+        .returning();
+      return {
+        success: true,
+        data: createdMed,
+      };
     } catch (error: any) {
       return {
         success: false,

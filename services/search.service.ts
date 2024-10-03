@@ -4,8 +4,8 @@ import { Response } from "@/types/axios.types";
 import { Medication, Pharmacy } from "@/types/db.types";
 import { and, or, ilike, eq, gte, lte } from "drizzle-orm";
 
-interface SearchResult {
-  medications: Medication[];
+export interface SearchResult {
+  medications: (Medication & { pharmacy: { id: string; name: string } })[];
   pharmacies: Pharmacy[];
 }
 
@@ -27,6 +27,20 @@ class SearchService {
           },
         },
       });
+
+      // await db
+      // .select()
+      // .from(medicationsTable)
+      // .where(or(
+      //   ilike(medicationsTable.name, `%${query}%`),
+      //   ilike(medicationsTable.description, `%${query}%`),
+      // ))
+      // .leftJoin(pharmaciesTable, or(
+      //     ilike(pharmaciesTable.name, `%${query}%`),
+      //     ilike(pharmaciesTable.address, `%${query}%`),
+      //     ilike(pharmaciesTable.city, `%${query}%`),
+      //     ilike(pharmaciesTable.state, `%${query}%`),
+      //   ))
 
       const pharmacies = await db.query.pharmaciesTable.findMany({
         where: or(
@@ -146,26 +160,25 @@ class SearchService {
         );
       }
 
-      if (filters.minPrice !== undefined) {
-        medicationConditions.push(
-          gte(medicationsTable.price, filters.minPrice),
-        );
-      }
+      // if (filters.minPrice !== undefined) {
+      //   medicationConditions.push(
+      //     gte(medicationsTable.price, filters.minPrice),
+      //   );
+      // }
 
-      if (filters.maxPrice !== undefined) {
-        medicationConditions.push(
-          lte(medicationsTable.price, filters.maxPrice),
-        );
-      }
+      // if (filters.maxPrice !== undefined) {
+      //   medicationConditions.push(
+      //     lte(medicationsTable.price, filters.maxPrice),
+      //   );
+      // }
 
       const medications = await db.query.medicationsTable.findMany({
         where: and(...medicationConditions),
         with: {
-          createdBy: {
+          pharmacy: {
             columns: {
               id: true,
-              email: true,
-              role: true,
+              name: true,
             },
           },
         },

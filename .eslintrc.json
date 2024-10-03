@@ -1,3 +1,18 @@
 {
-  "extends": ["next/core-web-vitals", "next/typescript"]
+  "extends": ["next/core-web-vitals", "next/typescript", "plugin:drizzle/all"],
+  "plugins": ["drizzle"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "root": true,
+  "rules": {
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/no-empty-interface": "off",
+    "drizzle/enforce-delete-with-where": "off",
+    "drizzle/enforce-update-with-where": "off",
+    "prefer-const": "warn",
+    "@typescript-eslint/no-empty-object-type": "warn"
+  }
 }

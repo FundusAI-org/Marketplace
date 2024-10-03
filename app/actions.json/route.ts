@@ -4,7 +4,7 @@ import { createActionHeaders, ActionError, ActionsJson } from "@solana/actions";
 // create the standard headers for this route (including CORS)
 const headers = createActionHeaders();
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
     const medications = await medicationService.getMedications();
 

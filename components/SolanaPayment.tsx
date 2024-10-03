@@ -75,7 +75,6 @@ const SolanaPayment: FC<SolanaPaymentProps> = ({
         signature,
         amountUSD,
         createResult.amountSOL,
-        orderId,
       );
       if (!confirmResult.success) {
         throw new Error(confirmResult.error);
@@ -121,7 +120,8 @@ const SolanaPayment: FC<SolanaPaymentProps> = ({
             Please connect your Solana wallet to proceed with the payment.
           </p>
           <p className="text-sm text-muted-foreground">
-            If you haven't added a Solana wallet address to your account, please{" "}
+            If you haven&apos;t added a Solana wallet address to your account,
+            please{" "}
             <Link href="/profile" className="text-primary hover:underline">
               update your profile
             </Link>

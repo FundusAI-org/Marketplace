@@ -16,7 +16,9 @@ class UsersService {
     }
 
     try {
-      const res = await db.query.usersTable.findMany();
+      const res = await db.query.usersTable.findMany({
+        with: {},
+      });
       return {
         success: true,
         data: res,
@@ -146,30 +148,32 @@ class UsersService {
       };
     }
 
-    try {
-      const res = await db
-        .update(usersTable)
-        .set({ role: newRole })
-        .where(eq(usersTable.id, userId))
-        .returning();
+    // try {
+    //   const res = await db
+    //     .update(usersTable)
+    //     .set({
+    //       role: newRole,
+    //     })
+    //     .where(eq(usersTable.id, userId))
+    //     .returning();
 
-      if (res.length === 0) {
-        return {
-          success: false,
-          data: "User not found",
-        };
-      }
+    //   if (res.length === 0) {
+    //     return {
+    //       success: false,
+    //       data: "User not found",
+    //     };
+    //   }
 
-      return {
-        success: true,
-        data: res[0],
-      };
-    } catch (error: any) {
-      return {
-        success: false,
-        data: error.message,
-      };
-    }
+    //   return {
+    //     success: true,
+    //     data: res[0],
+    //   };
+    // } catch (error: any) {
+    //   return {
+    //     success: false,
+    //     data: error.message,
+    //   };
+    // }
   }
 }
 

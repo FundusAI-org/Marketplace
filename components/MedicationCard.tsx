@@ -10,9 +10,10 @@ import { toast } from "sonner";
 import { Loader2, Plus, Minus } from "lucide-react";
 import { addToCart, updateCartItemQuantity } from "@/actions/cart.actions";
 import { useCart } from "@/providers/cart.provider";
+import { SearchResult } from "@/services/search.service";
 
 interface MedicationCardProps {
-  medication: Medication & { pharmacy: Pharmacy };
+  medication: SearchResult["medications"][0];
 }
 
 const MedicationCard: FC<MedicationCardProps> = ({ medication }) => {
@@ -33,7 +34,7 @@ const MedicationCard: FC<MedicationCardProps> = ({ medication }) => {
         await refreshCart();
         toast.info("Added to cart successfully");
       } else {
-        toast.error(data.data || "Failed to add to cart");
+        toast.error(data.data.toString() || "Failed to add to cart");
       }
     } catch (error) {
       toast.error("An error occurred while adding to cart");
@@ -51,7 +52,7 @@ const MedicationCard: FC<MedicationCardProps> = ({ medication }) => {
         await refreshCart();
         toast.info("Cart updated successfully");
       } else {
-        toast.error(result.data || "Failed to update cart");
+        toast.error(result.data.toString() || "Failed to update cart");
       }
     } catch (error) {
       toast.error("An error occurred while updating the cart");

@@ -206,7 +206,7 @@ export default function ViewAllOrdersPage() {
             <PaginationItem>
               <PaginationPrevious
                 onClick={() => paginate(currentPage - 1)}
-                disabled={currentPage === 1}
+                isActive={currentPage === 1}
               />
             </PaginationItem>
             {Array.from({
@@ -224,7 +224,7 @@ export default function ViewAllOrdersPage() {
             <PaginationItem>
               <PaginationNext
                 onClick={() => paginate(currentPage + 1)}
-                disabled={
+                isActive={
                   currentPage ===
                   Math.ceil(filteredOrders.length / ordersPerPage)
                 }

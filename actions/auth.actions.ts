@@ -9,6 +9,7 @@ import { usersTable } from "@/db/schema";
 import { validateRequest, lucia } from "@/lucia";
 import { db } from "@/db";
 import { RegisterFormSchema, LoginFormSchema } from "@/types/formschemas";
+import { generateId } from "lucia";
 
 export const signUp = async (values: z.infer<typeof RegisterFormSchema>) => {
   try {
@@ -27,9 +28,10 @@ export const signUp = async (values: z.infer<typeof RegisterFormSchema>) => {
   });
 
   try {
-    const users = await db
+    const [user] = await db
       .insert(usersTable)
       .values({
+        id: generateId(15),
         email: values.email,
         passwordHash: hashedPassword,
         firstName: values.firstName,
@@ -37,10 +39,8 @@ export const signUp = async (values: z.infer<typeof RegisterFormSchema>) => {
       })
       .returning({
         id: usersTable.id,
-        username: usersTable.email,
+        email: usersTable.email,
       });
-
-    const user = users[0];
 
     const session = await lucia.createSession(user.id, {
       expiresIn: 60 * 60 * 24 * 30,
@@ -107,7 +107,7 @@ export const signIn = async (values: z.infer<typeof LoginFormSchema>) => {
 
   if (!isValidPassword) {
     return {
-      error: "Incorrect username or password",
+      error: "Incorrect email or password",
     };
   }
 

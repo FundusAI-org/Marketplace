@@ -2,10 +2,9 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 
-import { Badge } from "../ui/badge";
 import { Checkbox } from "../ui/checkbox";
 
-import { labels, priorities, statuses } from "../data/data";
+import { priorities, statuses } from "../data/data";
 
 import { DataTableColumnHeader } from "./data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
@@ -17,10 +16,7 @@ export const columns: ColumnDef<User>[] = [
     id: "select",
     header: ({ table }) => (
       <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
+        checked={table.getIsAllPageRowsSelected()}
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
         className="translate-y-[2px]"

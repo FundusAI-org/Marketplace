@@ -4,9 +4,10 @@ import { Response } from "@/types/axios.types";
 import { SelectCart, SelectCartItem } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { validateRequest } from "@/lucia";
+import { Medication } from "@/types/db.types";
 
 interface CartWithItems extends SelectCart {
-  items: SelectCartItem[];
+  items: (SelectCartItem & { medication: Medication })[];
 }
 
 class CartService {
@@ -154,7 +155,7 @@ class CartService {
       if (!cart) {
         return {
           success: false,
-          data: false,
+          data: "Error fetching cart",
         };
       }
 
@@ -175,7 +176,7 @@ class CartService {
       console.error("Remove from cart error:", error);
       return {
         success: false,
-        data: false,
+        data: "Error removing from cart",
       };
     }
   }
@@ -252,7 +253,7 @@ class CartService {
       if (!cart) {
         return {
           success: false,
-          data: false,
+          data: "Error fetching cart",
         };
       }
 
@@ -266,7 +267,7 @@ class CartService {
       console.error("Clear cart error:", error);
       return {
         success: false,
-        data: false,
+        data: "Error clearing cart",
       };
     }
   }

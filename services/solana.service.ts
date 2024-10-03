@@ -4,9 +4,10 @@ import {
   Transaction,
   SystemProgram,
   LAMPORTS_PER_SOL,
+  MessageV0,
 } from "@solana/web3.js";
 import { db } from "@/db";
-import { ordersTable, solanaTransactionsTable, usersTable } from "@/db/schema";
+import { solanaTransactionsTable, usersTable } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 class SolanaService {
@@ -82,7 +83,6 @@ class SolanaService {
     amountUSD: number,
     amountSOL: number,
     userId: string,
-    orderId: string,
   ): Promise<{ success: boolean; transactionId?: string }> {
     const transactionDetails = await this.connection.getTransaction(signature, {
       maxSupportedTransactionVersion: 0,
@@ -92,10 +92,22 @@ class SolanaService {
       throw new Error("Transaction not found");
     }
 
-    const transferInstruction =
-      transactionDetails.transaction.message.instructions.find(
-        (ix) => "parsed" in ix && ix.parsed.type === "transfer",
-      );
+    const message = transactionDetails.transaction.message;
+    let instructions;
+
+    if ("instructions" in message) {
+      // Legacy transaction
+      instructions = message.instructions;
+    } else if (message instanceof MessageV0) {
+      // Versioned transaction
+      instructions = message.compiledInstructions;
+    } else {
+      throw new Error("Unsupported transaction message format");
+    }
+
+    const transferInstruction = instructions.find(
+      (ix) => "parsed" in ix && ix.parsed.type === "transfer",
+    );
 
     if (!transferInstruction || !("parsed" in transferInstruction)) {
       throw new Error("Invalid transaction");
@@ -110,22 +122,20 @@ class SolanaService {
       throw new Error("Invalid transaction details");
     }
 
-    // Update order status
-    await db
-      .update(ordersTable)
-      .set({ status: "pending" })
-      .where(eq(ordersTable.id, orderId));
+    const transactionUpdate = {
+      status: "completed",
+      signature,
+    };
 
     // Insert Solana transaction record
     const [newTransaction] = await db
       .insert(solanaTransactionsTable)
       .values({
         userId,
-        orderId,
-        amount: amountUSD,
-        amountSOL,
+        amount: amountUSD.toString(),
+        amountSOL: amountSOL.toString(),
         signature,
-        status: "completed",
+        ...transactionUpdate,
       })
       .returning();
 
