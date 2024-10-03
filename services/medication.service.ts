@@ -253,6 +253,9 @@ class MedicationService {
         .insert(medicationsTable)
         .values({
           ...newMedication,
+          details: newMedication.details,
+          sideEffect: newMedication.sideEffect,
+          usage: newMedication.usage,
           description: newMedication.description,
           name: newMedication.name,
           price: newMedication.price,
