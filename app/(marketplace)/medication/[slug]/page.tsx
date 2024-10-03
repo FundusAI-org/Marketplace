@@ -14,10 +14,10 @@ interface MedicationDetailPageProps {
   };
 }
 
-export async function generateMetadata({ params }) {
-  const { data, success } = await medicationService.getMedicationBySlug(
-    params.slug,
-  );
+export async function generateMetadata({
+  params: { slug },
+}: MedicationDetailPageProps): Promise<Metadata> {
+  const { data, success } = await medicationService.getMedicationBySlug(slug);
 
   if (!success) {
     throw new Error("Page not found");
@@ -54,8 +54,6 @@ export async function generateMetadata({ params }) {
         index: true,
         follow: true,
       },
-      otherBots: true,
-      crawlDelay: 5,
     },
   };
 }
