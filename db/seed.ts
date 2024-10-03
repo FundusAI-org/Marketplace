@@ -196,26 +196,28 @@ Inject the insulin under the skin in areas such as the abdomen, thigh, or upper 
 Remove and dispose of the needle after each use`,
       },
       {
-        imageUrl:"https://ik.imagekit.io/e696lodil/fundus%20ai/Lancing%20Pen%20and%20Lancets_qNMwff1e3.heic?updatedAt=1727987349177"
-        name:"Lancing Pen and Lancets",
-slug:slugify("Lancing Pen and Lancets"),
-description:"A lancing pen is used for obtaining small blood samples for glucose testing. The lancets are disposable needles that fit into the lancing pen, making it easier to prick the skin for blood sugar monitoring.",
-createdBy:users[0].id,
-pharmacyId:pharmacies[0].id,
-details:`Adjustable depth settings for comfort.
+        imageUrl:
+          "https://ik.imagekit.io/e696lodil/fundus%20ai/Lancing%20Pen%20and%20Lancets_qNMwff1e3.heic?updatedAt=1727987349177",
+        name: "Lancing Pen and Lancets",
+        slug: slugify("Lancing Pen and Lancets"),
+        description:
+          "A lancing pen is used for obtaining small blood samples for glucose testing. The lancets are disposable needles that fit into the lancing pen, making it easier to prick the skin for blood sugar monitoring.",
+        createdBy: users[0].id,
+        pharmacyId: pharmacies[0].id,
+        details: `Adjustable depth settings for comfort.
 Compatible with standard lancets.
 Compact, easy-to-carry design.
 Comes with 100 sterile, single-use lancets`,
-inStock:true,
-price:"15",
-usage:`Insert a lancet into the lancing pen.
+        inStock: true,
+        price: "15",
+        usage: `Insert a lancet into the lancing pen.
 Adjust the depth setting based on skin sensitivity.
 Press the pen against the fingertip and press the button to release the needle.
 Collect the blood sample on a glucose test strip.
 Dispose of the lancet after each use`,
-sideEffect:`Skin irritation or soreness,
-Risk of infection if lancets are reused`
-      }
+        sideEffect: `Skin irritation or soreness,
+Risk of infection if lancets are reused`,
+      },
     ];
 
     const medications = await db
