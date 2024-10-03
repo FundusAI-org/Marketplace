@@ -41,7 +41,7 @@ export async function GET(
     const payload: ActionGetResponse = {
       type: "action",
       title: data.name,
-      icon: "http://localhost:3000/_next/image?url=https%3A%2F%2Floremflickr.com%2F2803%2F1644%3Flock%3D5185943265134458&w=828&q=75",
+      icon: data.imageUrl,
       description: data.description ?? data.name,
       label: "Transfer", // this value will be ignored since `links.actions` exists
       links: {

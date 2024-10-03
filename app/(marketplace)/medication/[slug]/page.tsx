@@ -6,10 +6,57 @@ import { Button } from "@/components/ui/button";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import medicationService from "@/services/medication.service";
+import { Metadata } from "next";
 
 interface MedicationDetailPageProps {
   params: {
     slug: string;
+  };
+}
+
+export async function generateMetadata({ params }) {
+  const { data, success } = await medicationService.getMedicationBySlug(
+    params.slug,
+  );
+
+  if (!success) {
+    throw new Error("Page not found");
+  }
+
+  return {
+    title: data.name,
+    description: data.description,
+    openGraph: {
+      images: [
+        {
+          url: data.imageUrl,
+          width: 1200,
+          height: 630,
+          alt: data.name,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      images: [
+        {
+          url: data.imageUrl,
+          width: 1200,
+          height: 630,
+          alt: data.name,
+        },
+      ],
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+      },
+      otherBots: true,
+      crawlDelay: 5,
+    },
   };
 }
 
