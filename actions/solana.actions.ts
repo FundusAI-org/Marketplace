@@ -3,13 +3,20 @@
 import { validateRequest } from "@/lucia";
 import { solanaService } from "@/services/solana.service";
 
-export async function createSolanaTransaction(amountUSD: number) {
+export async function createSolanaTransaction(
+  amountUSD: number,
+  walletAddress?: string,
+) {
   const { user } = await validateRequest();
   if (!user) {
     return { success: false, error: "Unauthorized" };
   }
 
   try {
+    if (walletAddress) {
+      await solanaService.updateWalletAddress(walletAddress, user.id);
+    }
+
     const result = await solanaService.createTransaction(amountUSD, user.id);
     if (!result) {
       return {
@@ -17,6 +24,7 @@ export async function createSolanaTransaction(amountUSD: number) {
         error: "No Solana wallet address associated with this account",
       };
     }
+
     return {
       success: true,
       transaction: result.transaction

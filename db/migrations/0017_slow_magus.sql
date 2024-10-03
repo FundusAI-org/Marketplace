@@ -1,0 +1,1 @@
+ALTER TABLE "users" ALTER COLUMN "solana_wallet_address" DROP DEFAULT;

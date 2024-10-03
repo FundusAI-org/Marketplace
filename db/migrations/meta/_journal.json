@@ -113,6 +113,20 @@
       "when": 1727986687462,
       "tag": "0015_redundant_true_believers",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1727991519176,
+      "tag": "0016_chunky_stature",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1727992122388,
+      "tag": "0017_slow_magus",
+      "breakpoints": true
     }
   ]
 }

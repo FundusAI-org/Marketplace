@@ -52,10 +52,11 @@ class SolanaService {
   async createTransaction(
     amountUSD: number,
     userId: string,
+    walletAddress?: string,
   ): Promise<{ transaction: Transaction; amountSOL: number } | null> {
     const userWalletAddress = await this.getUserSolanaWallet(userId);
     if (!userWalletAddress) {
-      return null;
+      throw new Error("No Solana wallet address associated with this account");
     }
 
     const solPrice = await this.getSolPrice();
@@ -140,6 +141,16 @@ class SolanaService {
       .returning();
 
     return { success: true, transactionId: newTransaction.id };
+  }
+
+  async updateWalletAddress(walletAddress: string, userId: string) {
+    const [updatedUser] = await db
+      .update(usersTable)
+      .set({ solanaWalletAddress: walletAddress })
+      .where(eq(usersTable.id, userId))
+      .returning();
+
+    return updatedUser;
   }
 }
 

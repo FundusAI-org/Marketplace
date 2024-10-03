@@ -41,7 +41,7 @@ export const usersTable = pgTable("users", {
   lastName: text("last_name").notNull(),
   role: userRoleEnum("role").default("customer").notNull(),
   fundusPoints: integer("fundus_points").default(0),
-  solanaWalletAddress: text("solana_wallet_address"),
+  solanaWalletAddress: text("solana_wallet_address").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")
     .notNull()

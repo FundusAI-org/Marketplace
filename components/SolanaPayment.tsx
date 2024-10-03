@@ -34,7 +34,10 @@ const SolanaPayment: FC<SolanaPaymentProps> = ({
 
     setIsProcessing(true);
     try {
-      const createResult = await createSolanaTransaction(amountUSD);
+      const createResult = await createSolanaTransaction(
+        amountUSD,
+        publicKey.toString(),
+      );
       if (!createResult.success) {
         if (
           createResult.error ===

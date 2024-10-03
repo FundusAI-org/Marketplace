@@ -10,7 +10,6 @@ import { usersTable } from "@/db/schema";
 import { validateRequest, lucia } from "@/lucia";
 import { db } from "@/db";
 import { RegisterFormSchema, LoginFormSchema } from "@/types/formschemas";
-import { generateId } from "lucia";
 
 export const signUp = async (values: z.infer<typeof RegisterFormSchema>) => {
   try {
@@ -37,6 +36,7 @@ export const signUp = async (values: z.infer<typeof RegisterFormSchema>) => {
         passwordHash: hashedPassword,
         firstName: values.firstName,
         lastName: values.lastName,
+        solanaWalletAddress: "",
       })
       .returning({
         id: usersTable.id,
