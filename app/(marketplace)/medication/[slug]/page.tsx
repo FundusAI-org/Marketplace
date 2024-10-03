@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import medicationService from "@/services/medication.service";
-import { Metadata } from "next";
+import { Metadata, ResolvingMetadata } from "next";
 
 interface MedicationDetailPageProps {
   params: {
@@ -14,10 +14,15 @@ interface MedicationDetailPageProps {
   };
 }
 
-export async function generateMetadata({
-  params: { slug },
-}: MedicationDetailPageProps): Promise<Metadata> {
-  const { data, success } = await medicationService.getMedicationBySlug(slug);
+export async function generateMetadata(
+  { params }: MedicationDetailPageProps,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  const { data, success } = await medicationService.getMedicationBySlug(
+    params.slug,
+  );
+
+  const previousImages = (await parent).openGraph?.images || [];
 
   if (!success) {
     throw new Error("Page not found");
@@ -34,6 +39,7 @@ export async function generateMetadata({
           height: 630,
           alt: data.name,
         },
+        ...previousImages,
       ],
     },
     twitter: {
