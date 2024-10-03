@@ -3,13 +3,20 @@ import medicationService from "@/services/medication.service";
 import { solanaService } from "@/services/solana.service";
 import {
   ActionGetResponse,
-  // createActionHeaders,
+  createActionHeaders,
   ActionError,
   ACTIONS_CORS_HEADERS,
+  BLOCKCHAIN_IDS,
 } from "@solana/actions";
 
+// const headers = ACTIONS_CORS_HEADERS;
+
 // create the standard headers for this route (including CORS)
-const headers = ACTIONS_CORS_HEADERS;
+const headers = createActionHeaders({
+  headers: ACTIONS_CORS_HEADERS,
+  chainId: BLOCKCHAIN_IDS.devnet,
+  actionVersion: "2.1.3",
+});
 
 export async function GET(
   req: Request,

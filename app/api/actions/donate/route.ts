@@ -8,9 +8,10 @@ import {
   createPostResponse,
   ActionGetResponse,
   ActionPostRequest,
-  // createActionHeaders,
+  createActionHeaders,
   ActionError,
   ACTIONS_CORS_HEADERS,
+  BLOCKCHAIN_IDS,
 } from "@solana/actions";
 import {
   clusterApiUrl,
@@ -22,7 +23,12 @@ import {
 } from "@solana/web3.js";
 
 // create the standard headers for this route (including CORS)
-const headers = ACTIONS_CORS_HEADERS;
+// const headers = ACTIONS_CORS_HEADERS;
+const headers = createActionHeaders({
+  headers: ACTIONS_CORS_HEADERS,
+  chainId: BLOCKCHAIN_IDS.devnet,
+  actionVersion: "2.1.3",
+});
 
 export const GET = async (req: Request) => {
   try {

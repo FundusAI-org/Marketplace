@@ -4,9 +4,10 @@ import {
   ActionPostResponse,
   createPostResponse,
   ActionPostRequest,
-  // createActionHeaders,
+  createActionHeaders,
   ActionError,
   ACTIONS_CORS_HEADERS,
+  BLOCKCHAIN_IDS,
 } from "@solana/actions";
 import {
   clusterApiUrl,
@@ -18,10 +19,15 @@ import {
 } from "@solana/web3.js";
 
 // create the standard headers for this route (including CORS)
+const headers = createActionHeaders({
+  headers: ACTIONS_CORS_HEADERS,
+  chainId: BLOCKCHAIN_IDS.devnet,
+  actionVersion: "2.1.3",
+});
 
 export const OPTIONS = async () =>
   Response.json(null, {
-    headers: ACTIONS_CORS_HEADERS,
+    headers,
   });
 
 export const POST = async (req: Request) => {
@@ -90,7 +96,7 @@ export const POST = async (req: Request) => {
     });
 
     return Response.json(payload, {
-      headers: ACTIONS_CORS_HEADERS,
+      headers,
     });
   } catch (err) {
     console.log(err);
@@ -98,7 +104,7 @@ export const POST = async (req: Request) => {
     if (typeof err == "string") actionError.message = err;
     return Response.json(actionError, {
       status: 400,
-      headers: ACTIONS_CORS_HEADERS,
+      headers,
     });
   }
 };
