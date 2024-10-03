@@ -114,23 +114,116 @@ export async function seed() {
 
     // Seed Medications
     console.log("Seeding medications...");
-    const medications: Omit<Medication, "createdAt" | "updatedAt">[] =
-      Array.from({ length: 10 }, () => {
-        const name = faker.commerce.productName();
-        return {
-          id: faker.string.uuid(),
-          slug: slugify(name),
-          name,
-          description: faker.lorem.sentence(),
-          price: faker.number.float({ min: 10, max: 1000 }).toString(),
-          inStock: faker.datatype.boolean(),
-          imageUrl: faker.image.url(),
-          createdBy: users[2].id,
-          pharmacyId: pharmacies[0].id,
-        };
-      });
+    const seedMedications: Omit<
+      Medication,
+      "createdAt" | "updatedAt" | "id"
+    >[] = [
+      {
+        imageUrl:
+          "https://ik.imagekit.io/e696lodil/fundus%20ai/Glucometer_0ihuIzw4v.heic?updatedAt=1727986597521",
+        name: "OneTouch Glucometer (with Lancing Pen)",
+        slug: slugify("OneTouch Glucometer (with Lancing Pen)"),
+        description: `The OneTouch Glucometer is a reliable blood glucose monitoring system designed for people with diabetes to easily and accurately measure their blood sugar levels at home or on the go. The kit comes with a glucometer, a lancing pen, and a set of lancets, making it an all-in-one solution for routine glucose testing. The device delivers quick results in just 5 seconds and can store up to 500 test results to help users track their glucose levels over time.`,
+        price: "40",
+        inStock: true,
+        sideEffect: `Skin irritation or soreness from frequent finger pricking,
+Risk of infection if lancets are reused`,
+        createdBy: users[0].id,
+        pharmacyId: pharmacies[0].id,
+        details: `
+        Glucometer with digital display.
+Comes with a lancing pen and 10 sterile lancets.
+Requires OneTouch test strips (sold separately).
+Test time: 5 seconds.
+Memory: Stores up to 500 test results with date and time.
+Requires 2 AAA batteries (included).
+Compact and portable, easy for daily use.
+Compatible with OneTouch app for Bluetooth data syncing`,
+        usage: `Wash your hands and dry them thoroughly.
+Load a lancet into the lancing pen and adjust the depth based on skin sensitivity.
+Use the lancing pen to prick the fingertip and obtain a small drop of blood.
+Insert a glucose test strip into the glucometer.
+Touch the blood sample to the test strip, and wait for the device to display the result (within 5 seconds).
+Record the result, or let the glucometer store it for future reference.
+Dispose of the lancet and test strip properly after each test`,
+      },
+      {
+        imageUrl:
+          "https://ik.imagekit.io/e696lodil/fundus%20ai/Insulin%20Injection_U-lkp-MgT.heic?updatedAt=1727987316081",
+        name: "Insulin Injection (NovoLog)",
+        slug: slugify("Insulin Injection (NovoLog)"),
+        description:
+          "NovoLog is a fast-acting insulin analog (insulin aspart) designed for people with diabetes to manage their blood sugar levels after meals. It works by replacing the insulin that the body is unable to produce, helping glucose enter cells for energy production.",
+        price: "90",
+        inStock: true,
+        sideEffect: `Low blood sugar (hypoglycemia),
+Redness or swelling at the injection site,
+Weight gain,
+Allergic reactions (rare)`,
+        createdBy: users[0].id,
+        pharmacyId: pharmacies[0].id,
+        details: `10 mL vial, 100 units/mL.
+Store in a refrigerator (36°F–46°F).
+Avoid freezing. Do not use if the liquid has particles or is discolored.
+Dispose of used syringes in a sharps container`,
+        usage: `Clean the vial's rubber stopper with an alcohol swab.
+Use an insulin syringe to draw the correct dose from the vial.
+Inject under the skin (subcutaneous), typically in the stomach, thighs, or upper arms, as directed by your doctor.
+Administer the injection immediately before a meal`,
+      },
+      {
+        name: "Insulin Pen (Prefilled)",
+        imageUrl:
+          "https://ik.imagekit.io/e696lodil/fundus%20ai/Insulin%20Pen_YukThY5p-.heic?updatedAt=1727987348993",
+        slug: slugify("Insulin Pen (Prefilled)"),
+        description:
+          "Prefilled insulin pens offer a convenient, ready-to-use way to administer insulin. Each pen is loaded with fast-acting insulin, ideal for controlling post-meal blood sugar spikes. It provides accurate dosing and reduces the need for manual syringe preparation.",
+        price: "120",
+        inStock: true,
+        sideEffect: `Low blood sugar (hypoglycemia),
+Lipodystrophy (skin thickening) at the injection site,
+Allergic reactions (itching, rash)`,
+        createdBy: users[0].id,
+        pharmacyId: pharmacies[0].id,
+        details: `Prefilled pen with 300 units of insulin.
+Available in various insulin types (fast-acting, long-acting).
+Dosage dial for accurate measurements.
+Can be stored at room temperature for up to 28 days once opened`,
+        usage: `Attach a new needle to the pen.
+Prime the pen by dialing a small dose and releasing it.
+Dial the correct dose as prescribed by your doctor.
+Inject the insulin under the skin in areas such as the abdomen, thigh, or upper arm.
+Remove and dispose of the needle after each use`,
+      },
+      {
+        imageUrl:"https://ik.imagekit.io/e696lodil/fundus%20ai/Lancing%20Pen%20and%20Lancets_qNMwff1e3.heic?updatedAt=1727987349177"
+        name:"Lancing Pen and Lancets",
+slug:slugify("Lancing Pen and Lancets"),
+description:"A lancing pen is used for obtaining small blood samples for glucose testing. The lancets are disposable needles that fit into the lancing pen, making it easier to prick the skin for blood sugar monitoring.",
+createdBy:users[0].id,
+pharmacyId:pharmacies[0].id,
+details:`Adjustable depth settings for comfort.
+Compatible with standard lancets.
+Compact, easy-to-carry design.
+Comes with 100 sterile, single-use lancets`,
+inStock:true,
+price:"15",
+usage:`Insert a lancet into the lancing pen.
+Adjust the depth setting based on skin sensitivity.
+Press the pen against the fingertip and press the button to release the needle.
+Collect the blood sample on a glucose test strip.
+Dispose of the lancet after each use`,
+sideEffect:`Skin irritation or soreness,
+Risk of infection if lancets are reused`
+      }
+    ];
 
-    await db.insert(medicationsTable).values(medications);
+    const medications = await db
+      .insert(medicationsTable)
+      .values(seedMedications)
+      .returning();
+
+    console.log(medications);
 
     // Seed Pharmacy Inventory
     console.log("Seeding pharmacy inventory...");
@@ -144,6 +237,7 @@ export async function seed() {
       quantity: faker.number.int({ min: 0, max: 100 }),
       price: med.price,
     }));
+
     await db.insert(pharmacyInventoryTable).values(pharmacyInventory);
 
     // Seed Orders
@@ -159,26 +253,6 @@ export async function seed() {
       },
     ];
     await db.insert(ordersTable).values(orders);
-
-    // Seed Order Items
-    console.log("Seeding order items...");
-    const orderItems: Omit<OrderItem, "createdAt" | "updatedAt">[] = [
-      {
-        id: faker.string.uuid(),
-        orderId: orders[0].id,
-        medicationId: medications[0].id,
-        quantity: faker.number.int({ min: 1, max: 5 }),
-        price: medications[0].price,
-      },
-      {
-        id: faker.string.uuid(),
-        orderId: orders[0].id,
-        medicationId: medications[1].id,
-        quantity: faker.number.int({ min: 1, max: 5 }),
-        price: medications[1].price,
-      },
-    ];
-    await db.insert(orderItemsTable).values(orderItems);
 
     // Seed Reviews
     console.log("Seeding reviews...");

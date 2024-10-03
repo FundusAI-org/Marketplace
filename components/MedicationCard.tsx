@@ -2,7 +2,6 @@
 
 import { FC, useState } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Medication, Pharmacy } from "@/types/db.types";
 import Image from "next/image";
 import { Button } from "./ui/button";
 import Link from "next/link";

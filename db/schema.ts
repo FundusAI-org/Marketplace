@@ -71,6 +71,9 @@ export const medicationsTable = pgTable("medications", {
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
   inStock: boolean("in_stock").default(true).notNull(),
   imageUrl: text("image_url").notNull(),
+  sideEffect: text("side_effect").notNull(),
+  details: text("details").notNull(),
+  usage: text("usage").notNull(),
   createdBy: uuid("created_by")
     .notNull()
     .references(() => usersTable.id, { onDelete: "cascade" }),

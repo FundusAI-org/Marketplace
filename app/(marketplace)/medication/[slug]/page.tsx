@@ -116,17 +116,21 @@ export default async function MedicationDetailPage({
           </div>
           <Tabs defaultValue="details">
             <TabsList>
-              <TabsTrigger value="details">Details</TabsTrigger>
-              <TabsTrigger value="sideEffects">Side Effects</TabsTrigger>
-              <TabsTrigger value="usage">Usage</TabsTrigger>
+              {data.details && (
+                <TabsTrigger value="details">Details</TabsTrigger>
+              )}
+              {data.sideEffect && (
+                <TabsTrigger value="sideEffects">Side Effects</TabsTrigger>
+              )}
+              {data.usage && <TabsTrigger value="usage">Usage</TabsTrigger>}
             </TabsList>
             <TabsContent value="details" className="mt-4">
               <h2 className="mb-2 text-lg font-semibold">Product Details</h2>
               <ul className="list-inside list-disc space-y-1">
-                <li>Active Ingredient: Lorem ipsum</li>
-                <li>Dosage Form: Tablet</li>
-                <li>Strength: 500mg</li>
-                <li>Route of Administration: Oral</li>
+                {data.details &&
+                  data.details
+                    .split(".")
+                    .map((detail) => <li key={detail}>{detail}</li>)}
               </ul>
             </TabsContent>
             <TabsContent value="sideEffects" className="mt-4">
@@ -135,10 +139,12 @@ export default async function MedicationDetailPage({
               </h2>
               <p>Common side effects may include:</p>
               <ul className="list-inside list-disc space-y-1">
-                <li>Headache</li>
-                <li>Nausea</li>
-                <li>Dizziness</li>
-                <li>Fatigue</li>
+                {data.sideEffect &&
+                  data.sideEffect
+                    .split(",")
+                    .map((sideEffect) => (
+                      <li key={sideEffect}>{sideEffect}</li>
+                    ))}
               </ul>
               <p className="mt-2">
                 Consult your doctor if you experience any severe side effects.
@@ -146,15 +152,13 @@ export default async function MedicationDetailPage({
             </TabsContent>
             <TabsContent value="usage" className="mt-4">
               <h2 className="mb-2 text-lg font-semibold">How to Use</h2>
-              <p>
-                Take this medication by mouth as directed by your doctor,
-                usually once daily with or without food. The dosage is based on
-                your medical condition and response to treatment.
-              </p>
-              <p className="mt-2">
-                Use this medication regularly to get the most benefit from it.
-                To help you remember, take it at the same time each day.
-              </p>
+
+              <ul className="list-inside list-disc space-y-1">
+                {data.usage &&
+                  data.usage
+                    .split(".")
+                    .map((usage, index) => <li key={index}>{usage}</li>)}
+              </ul>
             </TabsContent>
           </Tabs>
         </div>
