@@ -1,12 +1,12 @@
 import Image from "next/image";
-
 import { Star, Info } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import medicationService from "@/services/medication.service";
 import { Metadata, ResolvingMetadata } from "next";
+import MedicationCartHandle from "@/components/MedicationCartHandle";
+import TruncatedText from "@/components/TruncatedText";
+// import AddToCartButton from "./AddToCartButton";
 
 interface MedicationDetailPageProps {
   params: {
@@ -82,7 +82,7 @@ export default async function MedicationDetailPage({
             alt={data.name}
             width={400}
             height={400}
-            // className="w-full rounded-lg "
+            className="w-full rounded-lg"
           />
         </div>
         <div className="md:w-1/2">
@@ -101,15 +101,17 @@ export default async function MedicationDetailPage({
             </span>
           </div>
           <p className="mb-4 text-2xl font-bold">${data.price}</p>
-          <p className="mb-6 text-muted-foreground">{data.description}</p>
 
-          <p>
+          <div className="mb-6 mt-6 flex items-center gap-4">
+            <MedicationCartHandle {...data} />
+          </div>
+
+          <TruncatedText text={data.description} maxLength={200} />
+
+          <p className="mt-4">
             <span className="font-bold">{data.pharmacy.name}</span>
           </p>
 
-          <div className="mb-6 flex items-center gap-4">
-            <Button size="lg">Add to Cart</Button>
-          </div>
           <div className="mb-6 flex items-center text-sm text-muted-foreground">
             <Info className="mr-2 h-4 w-4" />
             <span>You can use your fundus points to buy this medication</span>
@@ -130,7 +132,10 @@ export default async function MedicationDetailPage({
                 {data.details &&
                   data.details
                     .split(".")
-                    .map((detail) => <li key={detail}>{detail}</li>)}
+                    .filter(Boolean)
+                    .map((detail, index) => (
+                      <li key={index}>{detail.trim()}</li>
+                    ))}
               </ul>
             </TabsContent>
             <TabsContent value="sideEffects" className="mt-4">
@@ -142,8 +147,8 @@ export default async function MedicationDetailPage({
                 {data.sideEffect &&
                   data.sideEffect
                     .split(",")
-                    .map((sideEffect) => (
-                      <li key={sideEffect}>{sideEffect}</li>
+                    .map((sideEffect, index) => (
+                      <li key={index}>{sideEffect.trim()}</li>
                     ))}
               </ul>
               <p className="mt-2">
@@ -152,12 +157,12 @@ export default async function MedicationDetailPage({
             </TabsContent>
             <TabsContent value="usage" className="mt-4">
               <h2 className="mb-2 text-lg font-semibold">How to Use</h2>
-
               <ul className="list-inside list-disc space-y-1">
                 {data.usage &&
                   data.usage
                     .split(".")
-                    .map((usage, index) => <li key={index}>{usage}</li>)}
+                    .filter(Boolean)
+                    .map((usage, index) => <li key={index}>{usage.trim()}</li>)}
               </ul>
             </TabsContent>
           </Tabs>
