@@ -1,5 +1,6 @@
 "use server";
 import { z } from "zod";
+import { v4 as uuidv4 } from "uuid";
 
 import { cookies } from "next/headers";
 import { eq } from "drizzle-orm";
@@ -31,7 +32,7 @@ export const signUp = async (values: z.infer<typeof RegisterFormSchema>) => {
     const [user] = await db
       .insert(usersTable)
       .values({
-        id: generateId(15),
+        id: uuidv4(),
         email: values.email,
         passwordHash: hashedPassword,
         firstName: values.firstName,

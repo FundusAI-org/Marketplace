@@ -31,7 +31,7 @@ export default async function MedicationDetailPage({
             alt={data.name}
             width={400}
             height={400}
-            className="w-full rounded-lg"
+            // className="w-full rounded-lg "
           />
         </div>
         <div className="md:w-1/2">
