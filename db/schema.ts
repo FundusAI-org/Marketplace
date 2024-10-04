@@ -40,7 +40,7 @@ export const usersTable = pgTable("users", {
   firstName: text("first_name").notNull(),
   lastName: text("last_name").notNull(),
   role: userRoleEnum("role").default("customer").notNull(),
-  fundusPoints: integer("fundus_points").default(0),
+  fundusPoints: integer("fundus_points").notNull(),
   solanaWalletAddress: text("solana_wallet_address").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")
@@ -130,12 +130,9 @@ export const ordersTable = pgTable("orders", {
   userId: uuid("user_id")
     .notNull()
     .references(() => usersTable.id, { onDelete: "cascade" }),
-  pharmacyId: uuid("pharmacy_id")
-    .notNull()
-    .references(() => pharmaciesTable.id, { onDelete: "cascade" }),
   status: orderStatusEnum("status").default("pending").notNull(),
   totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
-  fundusPointsUsed: integer("fundus_points_used").default(0),
+  fundusPointsUsed: integer("fundus_points_used").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")
     .notNull()
@@ -231,9 +228,11 @@ export const solanaTransactionsTable = pgTable("solana_transactions", {
   userId: uuid("user_id")
     .references(() => usersTable.id, { onDelete: "cascade" })
     .notNull(),
-  orderId: uuid("order_id").references(() => ordersTable.id, {
-    onDelete: "cascade",
-  }),
+  orderId: uuid("order_id")
+    .references(() => ordersTable.id, {
+      onDelete: "cascade",
+    })
+    .notNull(),
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
   amountSOL: decimal("amount_sol", { precision: 20, scale: 9 }).notNull(),
   signature: text("signature").notNull().unique(),
@@ -306,10 +305,6 @@ export const ordersRelations = relations(ordersTable, ({ one, many }) => ({
   user: one(usersTable, {
     fields: [ordersTable.userId],
     references: [usersTable.id],
-  }),
-  pharmacy: one(pharmaciesTable, {
-    fields: [ordersTable.pharmacyId],
-    references: [pharmaciesTable.id],
   }),
   orderItems: many(orderItemsTable),
 }));

@@ -5,11 +5,14 @@ import {
   SystemProgram,
   LAMPORTS_PER_SOL,
   MessageV0,
+  ParsedTransactionWithMeta,
+  ParsedInstruction,
+  PartiallyDecodedInstruction,
 } from "@solana/web3.js";
 import { db } from "@/db";
-import { solanaTransactionsTable, usersTable } from "@/db/schema";
+import { ordersTable, solanaTransactionsTable, usersTable } from "@/db/schema";
 import { eq } from "drizzle-orm";
-
+import { v4 as uuidv4 } from "uuid";
 class SolanaService {
   private connection: Connection;
   private merchantPublicKey: PublicKey;
@@ -84,42 +87,55 @@ class SolanaService {
     amountUSD: number,
     amountSOL: number,
     userId: string,
-  ): Promise<{ success: boolean; transactionId?: string }> {
-    const transactionDetails = await this.connection.getTransaction(signature, {
-      maxSupportedTransactionVersion: 0,
-    });
+  ): Promise<{ success: boolean; transactionId?: string; orderId: string }> {
+    console.log(`Confirming transaction: ${signature}`);
+
+    const transactionDetails = await this.connection.getParsedTransaction(
+      signature,
+      {
+        maxSupportedTransactionVersion: 0,
+      },
+    );
 
     if (!transactionDetails) {
+      console.error(`Transaction not found: ${signature}`);
       throw new Error("Transaction not found");
     }
 
-    const message = transactionDetails.transaction.message;
-    let instructions;
+    // console.log(
+    //   `Transaction details:`,
+    //   JSON.stringify(transactionDetails, null, 2),
+    // );
 
-    if ("instructions" in message) {
-      // Legacy transaction
-      instructions = message.instructions;
-    } else if (message instanceof MessageV0) {
-      // Versioned transaction
-      instructions = message.compiledInstructions;
-    } else {
-      throw new Error("Unsupported transaction message format");
+    const instructions = this.getInstructions(transactionDetails);
+    console.log(`Instructions:`, JSON.stringify(instructions, null, 2));
+
+    const transferInstruction = this.findTransferInstruction(instructions);
+    if (!transferInstruction) {
+      console.error(
+        `No transfer instruction found in transaction: ${signature}`,
+      );
+      throw new Error("Invalid transaction: No transfer instruction found");
     }
 
-    const transferInstruction = instructions.find(
-      (ix) => "parsed" in ix && ix.parsed.type === "transfer",
+    console.log(
+      `Transfer instruction:`,
+      JSON.stringify(transferInstruction, null, 2),
     );
 
-    if (!transferInstruction || !("parsed" in transferInstruction)) {
-      throw new Error("Invalid transaction");
-    }
-
     const { info } = transferInstruction.parsed;
+    const expectedLamports = Math.round(amountSOL * LAMPORTS_PER_SOL);
 
     if (
       info.destination !== this.merchantPublicKey.toBase58() ||
-      info.lamports !== Math.round(amountSOL * LAMPORTS_PER_SOL)
+      info.lamports !== expectedLamports
     ) {
+      console.error(`Invalid transaction details for ${signature}:`, {
+        expectedDestination: this.merchantPublicKey.toBase58(),
+        actualDestination: info.destination,
+        expectedLamports,
+        actualLamports: info.lamports,
+      });
       throw new Error("Invalid transaction details");
     }
 
@@ -128,19 +144,65 @@ class SolanaService {
       signature,
     };
 
-    // Insert Solana transaction record
-    const [newTransaction] = await db
-      .insert(solanaTransactionsTable)
-      .values({
-        userId,
-        amount: amountUSD.toString(),
-        amountSOL: amountSOL.toString(),
-        signature,
-        ...transactionUpdate,
-      })
-      .returning();
+    try {
+      const [order] = await db
+        .insert(ordersTable)
+        .values({
+          userId,
+          totalAmount: "0", // We'll update this later
+          fundusPointsUsed: 0,
+        })
+        .returning();
 
-    return { success: true, transactionId: newTransaction.id };
+      const [newTransaction] = await db
+        .insert(solanaTransactionsTable)
+        .values({
+          userId,
+          amount: amountUSD.toString(),
+          amountSOL: amountSOL.toString(),
+          signature,
+          orderId: order.id,
+          ...transactionUpdate,
+        })
+        .returning();
+
+      console.log(`Transaction confirmed and recorded: ${newTransaction.id}`);
+      return {
+        success: true,
+        transactionId: newTransaction.id,
+        orderId: order.id,
+      };
+    } catch (error) {
+      console.error(`Error inserting transaction record:`, error);
+      throw new Error("Failed to record transaction");
+    }
+  }
+
+  private getInstructions(
+    transactionDetails: ParsedTransactionWithMeta,
+  ): (ParsedInstruction | PartiallyDecodedInstruction)[] {
+    const message = transactionDetails.transaction.message;
+    if ("instructions" in message) {
+      return message.instructions;
+    } else if ("compiledInstructions" in message) {
+      return (
+        transactionDetails.meta?.innerInstructions?.[0]?.instructions || []
+      );
+    } else {
+      console.error(`Unsupported message format:`, message);
+      throw new Error("Unsupported transaction message format");
+    }
+  }
+
+  private findTransferInstruction(
+    instructions: (ParsedInstruction | PartiallyDecodedInstruction)[],
+  ): ParsedInstruction | null {
+    for (const instruction of instructions) {
+      if ("parsed" in instruction && instruction.parsed.type === "transfer") {
+        return instruction as ParsedInstruction;
+      }
+    }
+    return null;
   }
 
   async updateWalletAddress(walletAddress: string, userId: string) {

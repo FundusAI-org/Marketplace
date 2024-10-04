@@ -37,6 +37,7 @@ export const signUp = async (values: z.infer<typeof RegisterFormSchema>) => {
         firstName: values.firstName,
         lastName: values.lastName,
         solanaWalletAddress: "",
+        fundusPoints: 0,
       })
       .returning({
         id: usersTable.id,

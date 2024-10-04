@@ -15,7 +15,15 @@ import Link from "next/link";
 
 interface SolanaPaymentProps {
   amountUSD: number;
-  onPaymentComplete: () => void;
+  onPaymentComplete: ({
+    solanaTransactionId,
+    tradtionalTransactionId,
+    orderId,
+  }: {
+    solanaTransactionId?: string;
+    tradtionalTransactionId?: string;
+    orderId?: string;
+  }) => void;
 }
 
 const SolanaPayment: FC<SolanaPaymentProps> = ({
@@ -84,7 +92,10 @@ const SolanaPayment: FC<SolanaPaymentProps> = ({
       }
 
       toast.success("Payment successful!");
-      onPaymentComplete();
+      onPaymentComplete({
+        solanaTransactionId: confirmResult.transactionId,
+        orderId: confirmResult.orderId,
+      });
     } catch (error) {
       console.error("Payment error:", error);
       toast.error("Payment failed. Please try again.");

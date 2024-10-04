@@ -55,9 +55,17 @@ export async function confirmSolanaPayment(
       amountSOL,
       user.id,
     );
-    return { success: true, transactionId: result.transactionId };
+    return {
+      success: true,
+      transactionId: result.transactionId,
+      orderId: result.orderId,
+    };
   } catch (error) {
     console.error("Error confirming Solana payment:", error);
-    return { success: false, error: "Failed to confirm payment" };
+    return {
+      success: false,
+      error:
+        error instanceof Error ? error.message : "Failed to confirm payment",
+    };
   }
 }

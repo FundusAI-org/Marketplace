@@ -127,6 +127,27 @@
       "when": 1727992122388,
       "tag": "0017_slow_magus",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1728038364136,
+      "tag": "0018_daily_black_bird",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1728038588509,
+      "tag": "0019_faulty_amazoness",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1728040639399,
+      "tag": "0020_lazy_daimon_hellstrom",
+      "breakpoints": true
     }
   ]
 }

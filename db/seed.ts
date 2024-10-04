@@ -240,20 +240,6 @@ Risk of infection if lancets are reused`,
 
     await db.insert(pharmacyInventoryTable).values(pharmacyInventory);
 
-    // Seed Orders
-    console.log("Seeding orders...");
-    const orders: Omit<Order, "createdAt" | "updatedAt">[] = [
-      {
-        id: faker.string.uuid(),
-        userId: users.find((u) => u.role === "customer")!.id,
-        pharmacyId: pharmacies[0].id,
-        status: "delivered",
-        totalAmount: faker.number.float({ min: 50, max: 500 }).toString(),
-        fundusPointsUsed: faker.number.int({ min: 0, max: 50 }),
-      },
-    ];
-    await db.insert(ordersTable).values(orders);
-
     // Seed Reviews
     console.log("Seeding reviews...");
     const reviews: Omit<Review, "createdAt" | "updatedAt">[] = [

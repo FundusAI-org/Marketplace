@@ -32,6 +32,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import SolanaPayment from "@/components/SolanaPayment";
 
 import "@solana/wallet-adapter-react-ui/styles.css";
+import { createOrder } from "@/actions/order.actions";
+import { redirect } from "next/navigation";
 
 const wallets = [new PhantomWalletAdapter()];
 
@@ -70,8 +72,31 @@ export default function CheckoutPage() {
     await refreshCart();
   };
 
-  const handleSolanaPaymentComplete = () => {
-    toast.success("Solana payment completed successfully");
+  const handleSolanaPaymentComplete = async ({
+    solanaTransactionId,
+    tradtionalTransactionId,
+    orderId,
+  }: {
+    solanaTransactionId?: string;
+    tradtionalTransactionId?: string;
+    orderId?: string;
+  }) => {
+    const orderItems = cart.items.map((item) => ({
+      id: item.medicationId,
+      quantity: item.quantity,
+    }));
+
+    const order = await createOrder(orderItems, orderId, solanaTransactionId);
+
+    if (!order.success) {
+      toast.error("Failed to create order");
+      throw new Error("Failed to create order");
+    }
+
+    console.log(order);
+
+    toast.success("Order placed successfully");
+    // redirect("/checkout");
     refreshCart();
   };
 
