@@ -269,10 +269,10 @@ import {
   ordersTable,
   orderItemsTable,
   medicationsTable,
-  usersTable,
   cartTable,
   cartItemsTable,
   solanaTransactionsTable,
+  customersTable,
 } from "@/db/schema";
 import { v4 as uuidv4 } from "uuid";
 import { validateRequest } from "@/lucia";
@@ -307,7 +307,7 @@ class OrderService {
   async createOrder(
     input: CreateOrderInput,
   ): Promise<{ success: boolean; orderId?: string }> {
-    const { user } = await validateRequest();
+    const { account: user } = await validateRequest();
     if (!user) {
       throw new Error("Unauthorized");
     }
@@ -368,11 +368,11 @@ class OrderService {
     // Step 5: Update user's fundus points if used
     if (input.fundusPointsUsed) {
       await db
-        .update(usersTable)
+        .update(customersTable)
         .set({
-          fundusPoints: user.fundusPoints - input.fundusPointsUsed,
+          fundusPoints: user.customer.fundusPoints - input.fundusPointsUsed,
         })
-        .where(eq(usersTable.id, input.userId));
+        .where(eq(customersTable.id, input.userId));
     }
 
     // Step 6: Update Solana transaction with order ID if applicable
@@ -393,31 +393,15 @@ class OrderService {
   }
 
   private async removeItemsFromCart(userId: string, medicationIds: string[]) {
-    const userCart = await db
-      .select({ id: cartTable.id })
-      .from(cartTable)
-      .where(eq(cartTable.userId, userId))
-      .limit(1);
-
-    if (userCart.length === 0) {
-      return; // No cart found, nothing to remove
-    }
-
-    const cartId = userCart[0].id;
-
-    await db
-      .delete(cartItemsTable)
-      .where(
-        and(
-          eq(cartItemsTable.cartId, cartId),
-          inArray(cartItemsTable.medicationId, medicationIds),
-        ),
-      );
+    await db.delete(cartTable).where(eq(cartTable.customerId, userId));
   }
 
   async isOrderOwnedByUser(orderId: string, userId: string): Promise<boolean> {
     const order = await db.query.ordersTable.findFirst({
-      where: and(eq(ordersTable.id, orderId), eq(ordersTable.userId, userId)),
+      where: and(
+        eq(ordersTable.id, orderId),
+        eq(ordersTable.customerId, userId),
+      ),
     });
 
     return !!order;

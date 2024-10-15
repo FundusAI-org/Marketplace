@@ -13,7 +13,7 @@ interface CartWithItems extends SelectCart {
 class CartService {
   async getCart(): Promise<Response<CartWithItems | null>> {
     try {
-      const { user } = await validateRequest();
+      const { account: user } = await validateRequest();
       if (!user) {
         return {
           success: false,
@@ -22,7 +22,7 @@ class CartService {
       }
 
       const cart = await db.query.cartTable.findFirst({
-        where: eq(cartTable.userId, user.id),
+        where: eq(cartTable.customerId, user.id),
         with: {
           cartItems: {
             with: {
@@ -35,7 +35,7 @@ class CartService {
       if (!cart) {
         const [newCart] = await db
           .insert(cartTable)
-          .values({ userId: user.id })
+          .values({ customerId: user.id })
           .returning();
         return {
           success: true,
@@ -66,7 +66,7 @@ class CartService {
     quantity: number,
   ): Promise<Response<SelectCartItem | null>> {
     try {
-      const { user } = await validateRequest();
+      const { account: user } = await validateRequest();
       if (!user) {
         return {
           success: false,
@@ -75,13 +75,13 @@ class CartService {
       }
 
       let cart = await db.query.cartTable.findFirst({
-        where: eq(cartTable.userId, user.id),
+        where: eq(cartTable.customerId, user.id),
       });
 
       if (!cart) {
         [cart] = await db
           .insert(cartTable)
-          .values({ userId: user.id })
+          .values({ customerId: user.id })
           .returning();
       }
 
@@ -140,7 +140,7 @@ class CartService {
 
   async removeFromCart(cartItemId: string): Promise<Response<boolean>> {
     try {
-      const { user } = await validateRequest();
+      const { account: user } = await validateRequest();
       if (!user) {
         return {
           success: false,
@@ -149,7 +149,7 @@ class CartService {
       }
 
       const cart = await db.query.cartTable.findFirst({
-        where: eq(cartTable.userId, user.id),
+        where: eq(cartTable.customerId, user.id),
       });
 
       if (!cart) {
@@ -186,7 +186,7 @@ class CartService {
     quantity: number,
   ): Promise<Response<SelectCartItem | null>> {
     try {
-      const { user } = await validateRequest();
+      const { account: user } = await validateRequest();
       if (!user) {
         return {
           success: false,
@@ -195,7 +195,7 @@ class CartService {
       }
 
       const cart = await db.query.cartTable.findFirst({
-        where: eq(cartTable.userId, user.id),
+        where: eq(cartTable.customerId, user.id),
       });
 
       if (!cart) {
@@ -238,7 +238,7 @@ class CartService {
 
   async clearCart(): Promise<Response<boolean>> {
     try {
-      const { user } = await validateRequest();
+      const { account: user } = await validateRequest();
       if (!user) {
         return {
           success: false,
@@ -247,7 +247,7 @@ class CartService {
       }
 
       const cart = await db.query.cartTable.findFirst({
-        where: eq(cartTable.userId, user.id),
+        where: eq(cartTable.customerId, user.id),
       });
 
       if (!cart) {

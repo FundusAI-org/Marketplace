@@ -7,7 +7,7 @@ export async function createSolanaTransaction(
   amountUSD: number,
   walletAddress?: string,
 ) {
-  const { user } = await validateRequest();
+  const { account: user } = await validateRequest();
   if (!user) {
     return { success: false, error: "Unauthorized" };
   }
@@ -43,7 +43,7 @@ export async function confirmSolanaPayment(
   amountUSD: number,
   amountSOL: number,
 ) {
-  const { user } = await validateRequest();
+  const { account: user } = await validateRequest();
   if (!user) {
     return { success: false, error: "Unauthorized" };
   }

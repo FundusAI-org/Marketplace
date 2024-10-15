@@ -1,7 +1,9 @@
 import {
-  usersTable,
-  medicationsTable,
+  accountsTable,
+  customersTable,
+  adminsTable,
   pharmaciesTable,
+  medicationsTable,
   pharmacyInventoryTable,
   ordersTable,
   orderItemsTable,
@@ -16,11 +18,11 @@ import { db } from ".";
 import { faker } from "@faker-js/faker";
 import {
   Medication,
-  User,
+  Account,
+  Customer,
+  Admin,
   Pharmacy,
   PharmacyInventory,
-  Order,
-  OrderItem,
   Review,
   Cart,
   CartItem,
@@ -38,72 +40,70 @@ export async function seed() {
     await db.delete(orderItemsTable);
     await db.delete(ordersTable);
     await db.delete(pharmacyInventoryTable);
-    await db.delete(pharmaciesTable);
     await db.delete(medicationsTable);
-    await db.delete(usersTable);
+    await db.delete(pharmaciesTable);
+    await db.delete(customersTable);
+    await db.delete(adminsTable);
+    await db.delete(accountsTable);
 
-    // Seed Users
-    console.log("Seeding users...");
-    const additionalUsers: Omit<User, "createdAt" | "updatedAt">[] =
-      await Promise.all(
-        Array.from({ length: 10 }, async () => {
-          return {
-            id: faker.string.uuid(),
-            email: faker.internet.email(),
-            passwordHash: await hash("customerpass"),
-            firstName: faker.person.firstName(),
-            lastName: faker.person.lastName(),
-            fundusPoints: faker.number.int({ min: 0, max: 100 }),
-            role: "customer",
-            solanaWalletAddress: "",
-          };
-        }),
-      );
-
-    const users: Omit<User, "createdAt" | "updatedAt">[] = [
+    // Seed Accounts and related tables
+    console.log("Seeding accounts...");
+    const accounts: Omit<Account, "createdAt" | "updatedAt">[] = [
       {
         id: faker.string.uuid(),
         email: "admin@fundusai.com",
         passwordHash: await hash("adminpass"),
-        firstName: "Admin",
-        lastName: "User",
-        role: "admin",
-        fundusPoints: faker.number.int({ min: 0, max: 100 }),
-        solanaWalletAddress: "",
       },
       {
         id: faker.string.uuid(),
         email: "customer@example.com",
         passwordHash: await hash("customerpass"),
-        firstName: "John",
-        lastName: "Doe",
-        role: "customer",
-        fundusPoints: faker.number.int({ min: 0, max: 100 }),
-        solanaWalletAddress: "",
       },
       {
         id: faker.string.uuid(),
         email: "pharmacy@example.com",
         passwordHash: await hash("pharmacypass"),
-        firstName: "Jane",
-        lastName: "Smith",
-        role: "pharmacy",
-        fundusPoints: faker.number.int({ min: 0, max: 100 }),
-        solanaWalletAddress: "",
       },
-      ...additionalUsers,
+      // ...Array.from({ length: 10 }, () => ({
+      //   id: faker.string.uuid(),
+      //   email: faker.internet.email(),
+      //   passwordHash: await hash("customerpass"),
+      // })),
     ];
 
-    await db.insert(usersTable).values(users);
+    await db.insert(accountsTable).values(accounts);
+
+    // Seed Customers
+    console.log("Seeding customers...");
+    const customers: Omit<Customer, "createdAt" | "updatedAt">[] = accounts
+      .filter((_, index) => index !== 0 && index !== 2)
+      .map((account) => ({
+        id: account.id,
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+        fundusPoints: faker.number.int({ min: 0, max: 100 }),
+        solanaWalletAddress: "",
+      }));
+
+    await db.insert(customersTable).values(customers);
+
+    // Seed Admin
+    console.log("Seeding admin...");
+    const admin: Omit<Admin, "createdAt" | "updatedAt"> = {
+      id: accounts[0].id,
+      firstName: "Admin",
+      lastName: "User",
+    };
+
+    await db.insert(adminsTable).values(admin);
 
     // Seed Pharmacies
     console.log("Seeding pharmacies...");
     const pharmacies: Omit<Pharmacy, "createdAt" | "updatedAt">[] = [
       {
-        id: faker.string.uuid(),
-        userId: users.find((u) => u.role === "pharmacy")!.id,
-        slug: "central-pharmacy",
+        id: accounts[2].id,
         name: "Central Pharmacy",
+        slug: "central-pharmacy",
         address: faker.location.streetAddress(),
         city: faker.location.city(),
         state: faker.location.state(),
@@ -128,7 +128,7 @@ export async function seed() {
         inStock: true,
         sideEffect: `Skin irritation or soreness from frequent finger pricking,
 Risk of infection if lancets are reused`,
-        createdBy: users[0].id,
+
         pharmacyId: pharmacies[0].id,
         details: `
         Glucometer with digital display.
@@ -160,7 +160,7 @@ Dispose of the lancet and test strip properly after each test`,
 Redness or swelling at the injection site,
 Weight gain,
 Allergic reactions (rare)`,
-        createdBy: users[0].id,
+
         pharmacyId: pharmacies[0].id,
         details: `10 mL vial, 100 units/mL.
 Store in a refrigerator (36°F–46°F).
@@ -183,7 +183,7 @@ Administer the injection immediately before a meal`,
         sideEffect: `Low blood sugar (hypoglycemia),
 Lipodystrophy (skin thickening) at the injection site,
 Allergic reactions (itching, rash)`,
-        createdBy: users[0].id,
+
         pharmacyId: pharmacies[0].id,
         details: `Prefilled pen with 300 units of insulin.
 Available in various insulin types (fast-acting, long-acting).
@@ -202,7 +202,7 @@ Remove and dispose of the needle after each use`,
         slug: slugify("Lancing Pen and Lancets"),
         description:
           "A lancing pen is used for obtaining small blood samples for glucose testing. The lancets are disposable needles that fit into the lancing pen, making it easier to prick the skin for blood sugar monitoring.",
-        createdBy: users[0].id,
+
         pharmacyId: pharmacies[0].id,
         details: `Adjustable depth settings for comfort.
 Compatible with standard lancets.
@@ -245,7 +245,7 @@ Risk of infection if lancets are reused`,
     const reviews: Omit<Review, "createdAt" | "updatedAt">[] = [
       {
         id: faker.string.uuid(),
-        userId: users.find((u) => u.role === "customer")!.id,
+        customerId: customers[0].id,
         medicationId: medications[0].id,
         rating: faker.number.int({ min: 1, max: 5 }),
         comment: faker.lorem.sentence(),
@@ -258,7 +258,7 @@ Risk of infection if lancets are reused`,
     const carts: Omit<Cart, "createdAt" | "updatedAt">[] = [
       {
         id: faker.string.uuid(),
-        userId: users.find((u) => u.role === "customer")!.id,
+        customerId: customers[0].id,
       },
     ];
     await db.insert(cartTable).values(carts);

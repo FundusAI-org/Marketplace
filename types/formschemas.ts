@@ -20,6 +20,31 @@ export const RegisterFormSchema = z
     }
   });
 
+export const PharmacyRegisterFormSchema = z
+  .object({
+    email: z.string().email(),
+    password: z.string().min(8, "Password must be at least 8 characters"),
+    confirmPassword: z
+      .string()
+      .min(8, "Password must be at least 8 characters"),
+    name: z.string().min(2, {
+      message: "Pharmacy name must be at least 2 characters.",
+    }),
+    address: z.string(),
+    city: z.string(),
+    state: z.string(),
+    zipCode: z.string(),
+  })
+  .superRefine(({ confirmPassword, password }, ctx) => {
+    if (confirmPassword !== password) {
+      ctx.addIssue({
+        code: "custom",
+        message: "The passwords did not match",
+        path: ["confirmPassword"],
+      });
+    }
+  });
+
 export const LoginFormSchema = z.object({
   email: z.string().email(),
   password: z.string(),

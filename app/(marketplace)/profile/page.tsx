@@ -12,19 +12,19 @@ import { validateRequest } from "@/lucia";
 import { redirect } from "next/navigation";
 
 export default async function CustomerProfilePage() {
-  const { user } = await validateRequest();
+  const { account: user } = await validateRequest();
 
   if (user) {
     return (
-      <main className="container min-h-screen max-w-6xl bg-background py-6 md:py-12">
+      <main className="container max-w-6xl bg-background py-6 md:py-12">
         <div className="flex flex-col gap-6 md:flex-row">
           <aside className="w-full p-6 sm:p-0 md:w-1/4">
             <ProfileCard
               user={{
-                firstName: user.firstName,
-                lastName: user.lastName,
+                firstName: user.customer.firstName,
+                lastName: user.customer.lastName,
                 email: user.email,
-                fundusPoints: user.fundusPoints,
+                fundusPoints: user.customer.fundusPoints,
               }}
             />
             <div className="mt-6 flex gap-4">
@@ -47,7 +47,13 @@ export default async function CustomerProfilePage() {
                 <TabsTrigger value="orders">Recent Orders</TabsTrigger>
               </TabsList>
               <TabsContent value="profile">
-                <EditProfile user={{ ...user }} />
+                <EditProfile
+                  user={{
+                    ...user,
+                    firstName: user.customer.firstName,
+                    lastName: user.customer.lastName,
+                  }}
+                />
               </TabsContent>
               <TabsContent value="orders">
                 <RecentOrders

@@ -31,7 +31,7 @@ export const CartProvider: React.FC<{
 }> = ({ children, initialValue }) => {
   const [cart, setCart] = useState<CartWithItems | null>(initialValue);
 
-  const { user } = useSession();
+  const { account } = useSession();
 
   const refreshCart = async () => {
     try {
@@ -48,14 +48,10 @@ export const CartProvider: React.FC<{
   };
 
   useEffect(() => {
-    refreshCart();
-  }, []);
-
-  useEffect(() => {
-    if (user) {
+    if (account.customer) {
       refreshCart();
     }
-  }, [user]);
+  }, []);
 
   return (
     <CartContext.Provider value={{ cart, refreshCart }}>

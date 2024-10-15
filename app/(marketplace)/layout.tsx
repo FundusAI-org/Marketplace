@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 
 import Header from "@/components/Header";
-// import { CartProvider } from "@/providers/cart.provider";
+import { CartProvider } from "@/providers/cart.provider";
+import cartService from "@/services/cart.service";
 
 export const metadata: Metadata = {
   title: "FundusAI Marketplace",
@@ -37,15 +38,18 @@ export const metadata: Metadata = {
   },
 };
 
-export default function MarketPlaceLayout({
+export default async function MarketPlaceLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cartResponse = await cartService.getCart();
+
+  const cartData = cartResponse.success ? cartResponse.data : null;
   return (
-    <div>
+    <CartProvider initialValue={cartData}>
       <Header />
       <div className="flex min-h-screen w-full justify-center">{children}</div>
-    </div>
+    </CartProvider>
   );
 }

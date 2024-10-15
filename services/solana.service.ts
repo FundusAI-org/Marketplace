@@ -4,13 +4,16 @@ import {
   Transaction,
   SystemProgram,
   LAMPORTS_PER_SOL,
-  MessageV0,
   ParsedTransactionWithMeta,
   ParsedInstruction,
   PartiallyDecodedInstruction,
 } from "@solana/web3.js";
 import { db } from "@/db";
-import { ordersTable, solanaTransactionsTable, usersTable } from "@/db/schema";
+import {
+  customersTable,
+  ordersTable,
+  solanaTransactionsTable,
+} from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 class SolanaService {
@@ -29,9 +32,9 @@ class SolanaService {
 
   async getUserSolanaWallet(userId: string): Promise<string | null> {
     const user = await db
-      .select({ solanaWalletAddress: usersTable.solanaWalletAddress })
-      .from(usersTable)
-      .where(eq(usersTable.id, userId))
+      .select({ solanaWalletAddress: customersTable.solanaWalletAddress })
+      .from(customersTable)
+      .where(eq(customersTable.id, userId))
       .limit(1);
 
     return user[0]?.solanaWalletAddress || null;
@@ -148,7 +151,7 @@ class SolanaService {
       const [order] = await db
         .insert(ordersTable)
         .values({
-          userId,
+          customerId: userId,
           totalAmount: "0", // We'll update this later
           fundusPointsUsed: 0,
         })
@@ -157,7 +160,7 @@ class SolanaService {
       const [newTransaction] = await db
         .insert(solanaTransactionsTable)
         .values({
-          userId,
+          customerId: userId,
           amount: amountUSD.toString(),
           amountSOL: amountSOL.toString(),
           signature,
@@ -207,9 +210,9 @@ class SolanaService {
 
   async updateWalletAddress(walletAddress: string, userId: string) {
     const [updatedUser] = await db
-      .update(usersTable)
+      .update(customersTable)
       .set({ solanaWalletAddress: walletAddress })
-      .where(eq(usersTable.id, userId))
+      .where(eq(customersTable.id, userId))
       .returning();
 
     return updatedUser;

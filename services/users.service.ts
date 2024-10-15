@@ -1,14 +1,25 @@
 import { db } from "@/db";
-import { usersTable, pharmaciesTable } from "@/db/schema";
+import { accountsTable, pharmaciesTable } from "@/db/schema";
 import { validateRequest } from "@/lucia";
 import { Response } from "@/types/axios.types";
-import { User } from "@/types/db.types";
+import { Account } from "@/types/db.types";
 import { eq, and, not } from "drizzle-orm";
 
 class UsersService {
-  async getUsers(): Promise<Response<User[]>> {
-    const { user } = await validateRequest();
-    if (!user || user.role !== "admin") {
+  async getUsers(): Promise<
+    Response<
+      {
+        id: string;
+        firstName: string;
+        lastName: string;
+        email: string;
+        role: string;
+        fundusPoints: number;
+      }[]
+    >
+  > {
+    const { account: user } = await validateRequest();
+    if (!user || !user.admin) {
       return {
         success: false,
         data: "Unauthorized",
@@ -16,9 +27,45 @@ class UsersService {
     }
 
     try {
-      const res = await db.query.usersTable.findMany({
-        with: {},
+      const customers = await db.query.customersTable.findMany({
+        with: {
+          account: {
+            columns: {
+              email: true,
+            },
+          },
+        },
       });
+
+      const admins = await db.query.adminsTable.findMany({
+        with: {
+          account: {
+            columns: {
+              email: true,
+            },
+          },
+        },
+      });
+
+      const res = [
+        ...[...customers].map((user) => ({
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.account.email,
+          fundusPoints: user.fundusPoints,
+          role: "customer",
+        })),
+        ...[...admins].map((user) => ({
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.account.email,
+          fundusPoints: null,
+          role: "admin",
+        })),
+      ];
+
       return {
         success: true,
         data: res,
@@ -31,9 +78,20 @@ class UsersService {
     }
   }
 
-  async getCustomersForPharmacy(): Promise<Response<User[]>> {
-    const { user } = await validateRequest();
-    if (!user || user.role !== "pharmacy") {
+  async getCustomersForPharmacy(): Promise<
+    Response<
+      {
+        id: string;
+        firstName: string;
+        lastName: string;
+        email: string;
+        role: string;
+        fundusPoints: number;
+      }[]
+    >
+  > {
+    const { account: user } = await validateRequest();
+    if (!user || !user.pharmacy) {
       return {
         success: false,
         data: "Unauthorized",
@@ -42,7 +100,7 @@ class UsersService {
 
     try {
       const pharmacy = await db.query.pharmaciesTable.findFirst({
-        where: eq(pharmaciesTable.userId, user.id),
+        where: eq(pharmaciesTable.id, user.id),
       });
 
       if (!pharmacy) {
@@ -52,12 +110,14 @@ class UsersService {
         };
       }
 
-      const customers = await db.query.usersTable.findMany({
-        where: and(
-          eq(usersTable.role, "customer"),
-          not(eq(usersTable.id, user.id)),
-        ),
-      });
+      // const customers = await db.query.customersTable.findMany({
+      //   where: and(
+      //     eq(usersTable.role, "customer"),
+      //     not(eq(usersTable.id, user.id)),
+      //   ),
+      // });
+
+      const customers = [];
 
       return {
         success: true,
@@ -72,8 +132,8 @@ class UsersService {
   }
 
   async deleteUser(userId: string): Promise<Response<string>> {
-    const { user } = await validateRequest();
-    if (!user || user.role !== "admin") {
+    const { account: user } = await validateRequest();
+    if (!user || !user.admin) {
       return {
         success: false,
         data: "Unauthorized",
@@ -81,7 +141,7 @@ class UsersService {
     }
 
     try {
-      await db.delete(usersTable).where(eq(usersTable.id, userId));
+      await db.delete(accountsTable).where(eq(accountsTable.id, userId));
       return {
         success: true,
         data: "User deleted successfully",
@@ -94,8 +154,8 @@ class UsersService {
     }
   }
 
-  async updateUser(updatedUser: Partial<User>): Promise<Response<User>> {
-    const { user } = await validateRequest();
+  async updateUser(updatedUser: Partial<Account>): Promise<Response<Account>> {
+    const { account: user } = await validateRequest();
     if (!user) {
       return {
         success: false,
@@ -103,7 +163,7 @@ class UsersService {
       };
     }
 
-    if (user.role !== "admin" && user.id !== updatedUser.id) {
+    if (!user.admin && user.id !== updatedUser.id) {
       return {
         success: false,
         data: "Unauthorized",
@@ -112,9 +172,9 @@ class UsersService {
 
     try {
       const res = await db
-        .update(usersTable)
+        .update(accountsTable)
         .set(updatedUser)
-        .where(eq(usersTable.id, updatedUser.id!))
+        .where(eq(accountsTable.id, updatedUser.id!))
         .returning();
 
       if (res.length === 0) {
@@ -134,46 +194,6 @@ class UsersService {
         data: error.message,
       };
     }
-  }
-
-  async updateUserRole(
-    userId: string,
-    newRole: User["role"],
-  ): Promise<Response<User>> {
-    const { user } = await validateRequest();
-    if (!user || user.role !== "admin") {
-      return {
-        success: false,
-        data: "Unauthorized",
-      };
-    }
-
-    // try {
-    //   const res = await db
-    //     .update(usersTable)
-    //     .set({
-    //       role: newRole,
-    //     })
-    //     .where(eq(usersTable.id, userId))
-    //     .returning();
-
-    //   if (res.length === 0) {
-    //     return {
-    //       success: false,
-    //       data: "User not found",
-    //     };
-    //   }
-
-    //   return {
-    //     success: true,
-    //     data: res[0],
-    //   };
-    // } catch (error: any) {
-    //   return {
-    //     success: false,
-    //     data: error.message,
-    //   };
-    // }
   }
 }
 

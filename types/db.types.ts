@@ -1,5 +1,5 @@
 import {
-  usersTable,
+  accountsTable,
   sessionsTable,
   medicationsTable,
   pharmaciesTable,
@@ -10,10 +10,21 @@ import {
   reviewsTable,
   cartTable,
   cartItemsTable,
+  customersTable,
+  adminsTable,
 } from "@/db/schema";
 
-export type User = typeof usersTable.$inferSelect;
+export type Account = typeof accountsTable.$inferSelect & {
+  customer?: Omit<Customer, "id">;
+  admin?: Omit<Admin, "id">;
+  pharmacy?: Omit<
+    Pharmacy,
+    "id" | "slug" | "address" | "city" | "state" | "zipCode"
+  >;
+};
 export type Session = typeof sessionsTable.$inferSelect;
+export type Customer = typeof customersTable.$inferSelect;
+export type Admin = typeof adminsTable.$inferSelect;
 export type Medication = typeof medicationsTable.$inferSelect;
 export type Pharmacy = typeof pharmaciesTable.$inferSelect;
 export type PharmacyInventory = typeof pharmacyInventoryTable.$inferSelect;

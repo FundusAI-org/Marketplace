@@ -1,9 +1,10 @@
 "use client";
-import { Session, User } from "lucia";
+import { Account } from "@/types/db.types";
+import { Session } from "lucia";
 import { createContext, useContext } from "react";
 
 interface SessionProviderProps {
-  user: User | null;
+  account: Account | null;
   session: Session | null;
 }
 

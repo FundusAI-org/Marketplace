@@ -11,7 +11,7 @@ export async function createOrder(
   fundusPointsUsed?: number,
   tradtionalTransactionId?: string,
 ) {
-  const { user } = await validateRequest();
+  const { account: user } = await validateRequest();
   if (!user) {
     return { success: false, error: "Unauthorized" };
   }

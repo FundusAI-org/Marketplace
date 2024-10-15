@@ -17,14 +17,16 @@ import { useSession } from "@/providers/session.provider";
 import { signOut } from "@/actions/auth.actions";
 
 import { User } from "lucide-react";
-import { UserAuthForm } from "./UserAuthForm";
+// import { UserAuthForm } from "./UserAuthForm";
 
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import Link from "next/link";
+import UserAuthForm from "./UserAuthForm";
 
 export function UserNav() {
-  const { user } = useSession();
-  if (!user) {
+  const { account } = useSession();
+
+  if (!account) {
     return (
       <Dialog>
         <DialogTrigger asChild>
@@ -50,7 +52,12 @@ export function UserNav() {
           <Avatar className="h-8 w-8">
             <AvatarImage src="/avatars/01.png" alt="@shadcn" />
             <AvatarFallback>
-              {user?.firstName?.charAt(0) + user?.lastName?.charAt(0)}
+              {account?.pharmacy
+                ? account.pharmacy.name.split(" ")[0].charAt(0) +
+                  account.pharmacy.name.split(" ")[1].charAt(0)
+                : account?.admin
+                  ? `${account.admin?.firstName?.charAt(0)}${account.admin?.lastName?.charAt(0)}`
+                  : `${account.customer?.firstName?.charAt(0)}${account.customer?.lastName?.charAt(0)}`}
             </AvatarFallback>
           </Avatar>
         </Button>
@@ -58,9 +65,11 @@ export function UserNav() {
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{user.firstName}</p>
+            <p className="text-sm font-medium leading-none">
+              {account.customer?.firstName}
+            </p>
             <p className="text-xs leading-none text-muted-foreground">
-              {user.email}
+              {account.email}
             </p>
           </div>
         </DropdownMenuLabel>
@@ -69,17 +78,22 @@ export function UserNav() {
           <Link href={"/profile"}>
             <DropdownMenuItem>Profile</DropdownMenuItem>
           </Link>
-          <Link href={"/cart"}>
-            <DropdownMenuItem>Cart</DropdownMenuItem>
-          </Link>
+
+          {account?.customer && (
+            <Link href={"/cart"}>
+              <DropdownMenuItem>Cart</DropdownMenuItem>
+            </Link>
+          )}
         </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        {user?.role.toString() == "admin" && (
-          <Link href={"/admin"}>
-            <DropdownMenuGroup>
-              <DropdownMenuItem>Admin Dashboard</DropdownMenuItem>
-            </DropdownMenuGroup>
-          </Link>
+        {account?.admin && (
+          <>
+            <DropdownMenuSeparator />
+            <Link href={"/admin"}>
+              <DropdownMenuGroup>
+                <DropdownMenuItem>Admin Dashboard</DropdownMenuItem>
+              </DropdownMenuGroup>
+            </Link>
+          </>
         )}
 
         <DropdownMenuSeparator />

@@ -9,7 +9,10 @@ import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 
-import { LoginFormSchema, RegisterFormSchema } from "@/types/formschemas";
+import {
+  LoginFormSchema,
+  PharmacyRegisterFormSchema,
+} from "@/types/formschemas";
 
 import {
   Card,
@@ -33,17 +36,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { signUp, signIn } from "@/actions/auth.actions";
 import { toast } from "sonner";
 
-export default function UserAuthForm() {
+export default function PharmacyAuthForm() {
   const params = useSearchParams();
 
-  const RegisterForm = useForm<z.infer<typeof RegisterFormSchema>>({
-    resolver: zodResolver(RegisterFormSchema),
+  const RegisterForm = useForm<z.infer<typeof PharmacyRegisterFormSchema>>({
+    resolver: zodResolver(PharmacyRegisterFormSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
       email: "",
       password: "",
       confirmPassword: "",
+      name: "",
+      address: "",
+      city: "",
+      state: "",
+      zipCode: "",
     },
   });
 
@@ -55,24 +61,22 @@ export default function UserAuthForm() {
     },
   });
 
-  // 2. Define a submit handler.
-  async function register(values: z.infer<typeof RegisterFormSchema>) {
-    const res = await signUp({ values, accountType: "customer" });
+  async function register(values: z.infer<typeof PharmacyRegisterFormSchema>) {
+    const res = await signUp({ values, accountType: "pharmacy" });
 
     if (!res.success) {
       toast.error(res.error);
-      return;
     } else {
-      toast.success("Successfully registered");
+      toast.success("Pharmacy registered successfully");
     }
   }
 
   async function login(values: z.infer<typeof LoginFormSchema>) {
     const res = await signIn(values);
-    if (res.error) {
+    if ("error" in res) {
       toast.error(res.error);
-    } else if (res.success) {
-      toast.success("Successfully logged in");
+    } else {
+      toast.success("Logged in successfully");
     }
   }
 
@@ -88,9 +92,9 @@ export default function UserAuthForm() {
       <TabsContent value="register">
         <Card>
           <CardHeader>
-            <CardTitle>Create an account</CardTitle>
+            <CardTitle>Register Pharmacy</CardTitle>
             <CardDescription>
-              Fill the form below to create an account.
+              Create a pharmacy account to manage your inventory and orders.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
@@ -103,51 +107,13 @@ export default function UserAuthForm() {
                   >
                     <FormField
                       control={RegisterForm.control}
-                      name="firstName"
+                      name="name"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Firstname</FormLabel>
+                          <FormLabel>Pharmacy Name</FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="John"
-                              autoComplete="given-name"
-                              disabled={RegisterForm.formState.isSubmitting}
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={RegisterForm.control}
-                      name="lastName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Lastname</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Doe"
-                              autoComplete="family-name"
-                              disabled={RegisterForm.formState.isSubmitting}
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={RegisterForm.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="example@example.com"
-                              autoComplete="email"
-                              autoCorrect="off"
+                              placeholder="Enter pharmacy name"
                               disabled={RegisterForm.formState.isSubmitting}
                               {...field}
                             />
@@ -159,14 +125,36 @@ export default function UserAuthForm() {
 
                     <FormField
                       control={RegisterForm.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="pharmacy@example.com"
+                              type="email"
+                              autoCapitalize="none"
+                              autoComplete="email"
+                              autoCorrect="off"
+                              disabled={RegisterForm.formState.isSubmitting}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={RegisterForm.control}
                       name="password"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Password</FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="enter password"
+                              placeholder="Enter password"
                               type="password"
+                              autoComplete="password"
                               disabled={RegisterForm.formState.isSubmitting}
                               {...field}
                             />
@@ -183,8 +171,66 @@ export default function UserAuthForm() {
                           <FormLabel>Confirm Password</FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="confirm password"
+                              placeholder="Confirm password"
+                              autoComplete="confirmPassword"
                               type="password"
+                              disabled={RegisterForm.formState.isSubmitting}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={RegisterForm.control}
+                      name="state"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>State</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder=""
+                              type="text"
+                              autoComplete="state"
+                              disabled={RegisterForm.formState.isSubmitting}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={RegisterForm.control}
+                      name="zipCode"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Zip Code</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder=""
+                              type="text"
+                              autoComplete="zipCode"
+                              disabled={RegisterForm.formState.isSubmitting}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={RegisterForm.control}
+                      name="address"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Address</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder=""
+                              type="text"
+                              autoComplete="address"
                               disabled={RegisterForm.formState.isSubmitting}
                               {...field}
                             />
@@ -202,32 +248,14 @@ export default function UserAuthForm() {
                       {RegisterForm.formState.isSubmitting ? (
                         <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
                       ) : (
-                        "Register"
+                        "Register Pharmacy"
                       )}
                     </Button>
                   </form>
                 </Form>
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">
-                      Or continue with
-                    </span>
-                  </div>
-                </div>
-                <Button variant="outline" type="button" disabled={true}>
-                  {false ? (
-                    <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <Icons.google className="mr-2 h-4 w-4" />
-                  )}{" "}
-                  Google
-                </Button>
               </div>
               <p className="px-8 text-center text-sm text-muted-foreground">
-                By clicking continue, you agree to our{" "}
+                By clicking register, you agree to our{" "}
                 <Link
                   href="/terms"
                   className="underline underline-offset-4 hover:text-primary"
@@ -250,7 +278,11 @@ export default function UserAuthForm() {
       <TabsContent value="login">
         <Card>
           <CardHeader>
-            <CardTitle>Login</CardTitle>
+            <CardTitle>Pharmacy Login</CardTitle>
+            <CardDescription>
+              Log in to your pharmacy account to manage your inventory and
+              orders.
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
             <div className={cn("grid gap-6")}>
@@ -267,18 +299,19 @@ export default function UserAuthForm() {
                         <FormLabel>Email</FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="example@example.com"
+                            placeholder="pharmacy@example.com"
+                            type="email"
+                            autoCapitalize="none"
                             autoComplete="email"
                             autoCorrect="off"
-                            {...field}
                             disabled={LoginForm.formState.isSubmitting}
+                            {...field}
                           />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-
                   <FormField
                     control={LoginForm.control}
                     name="password"
@@ -287,7 +320,7 @@ export default function UserAuthForm() {
                         <FormLabel>Password</FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="enter password"
+                            placeholder="Enter password"
                             type="password"
                             disabled={LoginForm.formState.isSubmitting}
                             {...field}
@@ -297,7 +330,6 @@ export default function UserAuthForm() {
                       </FormItem>
                     )}
                   />
-
                   <Button
                     type="submit"
                     className="w-full"
@@ -311,24 +343,6 @@ export default function UserAuthForm() {
                   </Button>
                 </form>
               </Form>
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">
-                    Or continue with
-                  </span>
-                </div>
-              </div>
-              <Button variant="outline" type="button" disabled={true}>
-                {false ? (
-                  <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <Icons.google className="mr-2 h-4 w-4" />
-                )}{" "}
-                Google
-              </Button>
             </div>
           </CardContent>
         </Card>

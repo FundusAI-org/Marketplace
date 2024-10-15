@@ -21,9 +21,7 @@ interface EditProfileProps {
   };
 }
 
-const EditProfile: FC<EditProfileProps> = async ({}) => {
-  // const { user } = useSession();
-  const { user } = await validateRequest();
+const EditProfile: FC<EditProfileProps> = async (user) => {
   return (
     <Card>
       <CardHeader>
@@ -71,9 +69,9 @@ const EditProfile: FC<EditProfileProps> = async ({}) => {
             Update Profile
           </Button>
         </form>
-        <UpdateSolanaWallet
+        {/* <UpdateSolanaWallet
           currentAddress={user?.solanaWalletAddress ?? null}
-        />
+        /> */}
       </CardContent>
     </Card>
   );

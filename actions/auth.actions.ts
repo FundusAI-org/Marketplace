@@ -1,21 +1,46 @@
 "use server";
+
 import { z } from "zod";
 import { v4 as uuidv4 } from "uuid";
-
 import { cookies } from "next/headers";
 import { eq } from "drizzle-orm";
 import { hash, verify } from "@node-rs/argon2";
 
-import { usersTable } from "@/db/schema";
+import {
+  accountsTable,
+  customersTable,
+  pharmaciesTable,
+  adminsTable,
+} from "@/db/schema";
 import { validateRequest, lucia } from "@/lucia";
 import { db } from "@/db";
-import { RegisterFormSchema, LoginFormSchema } from "@/types/formschemas";
+import {
+  RegisterFormSchema,
+  LoginFormSchema,
+  PharmacyRegisterFormSchema,
+} from "@/types/formschemas";
+import { slugify } from "@/lib/utils";
 
-export const signUp = async (values: z.infer<typeof RegisterFormSchema>) => {
+type SignUpInput =
+  | {
+      values: z.infer<typeof RegisterFormSchema>;
+      accountType: "customer" | "admin";
+    }
+  | {
+      values: z.infer<typeof PharmacyRegisterFormSchema>;
+      accountType: "pharmacy";
+    };
+
+export const signUp = async ({ values, accountType }: SignUpInput) => {
   try {
-    RegisterFormSchema.parse(values);
+    if (accountType === "pharmacy") {
+      PharmacyRegisterFormSchema.parse(values);
+    } else {
+      RegisterFormSchema.parse(values);
+    }
   } catch (error: any) {
     return {
+      success: false,
       error: error.message,
     };
   }
@@ -28,23 +53,49 @@ export const signUp = async (values: z.infer<typeof RegisterFormSchema>) => {
   });
 
   try {
-    const [user] = await db
-      .insert(usersTable)
+    const [account] = await db
+      .insert(accountsTable)
       .values({
         id: uuidv4(),
         email: values.email,
         passwordHash: hashedPassword,
-        firstName: values.firstName,
-        lastName: values.lastName,
-        solanaWalletAddress: "",
-        fundusPoints: 0,
       })
       .returning({
-        id: usersTable.id,
-        email: usersTable.email,
+        id: accountsTable.id,
+        email: accountsTable.email,
       });
 
-    const session = await lucia.createSession(user.id, {
+    switch (accountType) {
+      case "customer":
+        await db.insert(customersTable).values({
+          id: account.id,
+          firstName: values.firstName,
+          lastName: values.lastName,
+          solanaWalletAddress: "",
+          fundusPoints: 0,
+        });
+        break;
+      case "pharmacy":
+        await db.insert(pharmaciesTable).values({
+          id: account.id,
+          name: values.name,
+          slug: slugify(values.name),
+          address: values.address,
+          city: values.city,
+          state: values.state,
+          zipCode: values.zipCode,
+        });
+        break;
+      case "admin":
+        await db.insert(adminsTable).values({
+          id: account.id,
+          firstName: values.firstName,
+          lastName: values.lastName,
+        });
+        break;
+    }
+
+    const session = await lucia.createSession(account.id, {
       expiresIn: 60 * 60 * 24 * 30,
     });
 
@@ -59,12 +110,21 @@ export const signUp = async (values: z.infer<typeof RegisterFormSchema>) => {
     return {
       success: true,
       data: {
-        user,
+        account,
+        accountType,
       },
     };
   } catch (error: any) {
+    if (error.code === "23505") {
+      return {
+        success: false,
+        error: "An account with this email already exists",
+      };
+    }
+
     return {
-      error: error?.message,
+      success: false,
+      error: error?.message || "An error occurred during sign up",
     };
   }
 };
@@ -78,26 +138,18 @@ export const signIn = async (values: z.infer<typeof LoginFormSchema>) => {
     };
   }
 
-  console.log(values);
-
-  const existingUser = await db.query.usersTable.findFirst({
+  const existingAccount = await db.query.accountsTable.findFirst({
     where: (table) => eq(table.email, values.email),
   });
 
-  if (!existingUser) {
+  if (!existingAccount || !existingAccount.passwordHash) {
     return {
-      error: "User not found",
-    };
-  }
-
-  if (!existingUser.passwordHash) {
-    return {
-      error: "User not found",
+      error: "Incorrect email or password",
     };
   }
 
   const isValidPassword = await verify(
-    existingUser.passwordHash,
+    existingAccount.passwordHash,
     values.password,
     {
       memoryCost: 19456,
@@ -113,7 +165,7 @@ export const signIn = async (values: z.infer<typeof LoginFormSchema>) => {
     };
   }
 
-  const session = await lucia.createSession(existingUser.id, {
+  const session = await lucia.createSession(existingAccount.id, {
     expiresIn: 60 * 60 * 24 * 30,
   });
 
@@ -125,10 +177,41 @@ export const signIn = async (values: z.infer<typeof LoginFormSchema>) => {
     sessionCookie.attributes,
   );
 
+  // Determine account type
+  const customer = await db.query.customersTable.findFirst({
+    where: (table) => eq(table.id, existingAccount.id),
+  });
+  const pharmacy = await db.query.pharmaciesTable.findFirst({
+    where: (table) => eq(table.id, existingAccount.id),
+  });
+  const admin = await db.query.adminsTable.findFirst({
+    where: (table) => eq(table.id, existingAccount.id),
+  });
+
+  let accountType: "customer" | "pharmacy" | "admin";
+  let accountDetails;
+
+  if (customer) {
+    accountType = "customer";
+    accountDetails = customer;
+  } else if (pharmacy) {
+    accountType = "pharmacy";
+    accountDetails = pharmacy;
+  } else if (admin) {
+    accountType = "admin";
+    accountDetails = admin;
+  } else {
+    return {
+      error: "Account type not found",
+    };
+  }
+
   return {
     success: "Logged in successfully",
     data: {
-      user: existingUser,
+      account: existingAccount,
+      accountType,
+      accountDetails,
     },
   };
 };
@@ -152,6 +235,10 @@ export const signOut = async () => {
       sessionCookie.value,
       sessionCookie.attributes,
     );
+
+    return {
+      success: "Logged out successfully",
+    };
   } catch (error: any) {
     return {
       error: error?.message,

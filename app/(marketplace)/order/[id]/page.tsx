@@ -82,7 +82,7 @@ export default function ViewOrderDetailsPage({
   };
 
   return (
-    <main className="container min-h-screen max-w-6xl bg-background py-6 md:py-12">
+    <main className="container max-w-6xl bg-background py-6 md:py-12">
       <div className="flex items-center justify-between">
         <h1 className="mb-6 text-3xl font-bold">Order Details</h1>
 

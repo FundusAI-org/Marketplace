@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { medicationsTable, usersTable } from "@/db/schema";
+import { medicationsTable } from "@/db/schema";
 import { validateRequest } from "@/lucia";
 import { Response } from "@/types/axios.types";
 import { Medication } from "@/types/db.types";
@@ -9,15 +9,7 @@ class MedicationService {
   async getMedications(): Promise<Response<Medication[]>> {
     try {
       const medications = await db.query.medicationsTable.findMany({
-        with: {
-          createdBy: {
-            columns: {
-              id: true,
-              email: true,
-              role: true,
-            },
-          },
-        },
+        with: {},
       });
       return {
         success: true,
@@ -35,15 +27,7 @@ class MedicationService {
     try {
       const medication = await db.query.medicationsTable.findFirst({
         where: eq(medicationsTable.id, medicationId),
-        with: {
-          createdBy: {
-            columns: {
-              id: true,
-              email: true,
-              role: true,
-            },
-          },
-        },
+        with: {},
       });
 
       if (!medication) {
@@ -137,8 +121,8 @@ class MedicationService {
     medicationId: string,
     updatedMedication: Partial<Medication>,
   ): Promise<Response<Medication>> {
-    const { user } = await validateRequest();
-    if (!user) {
+    const { account } = await validateRequest();
+    if (!account || !account.admin || !account.pharmacy) {
       return {
         success: false,
         data: "Unauthorized",
@@ -148,9 +132,7 @@ class MedicationService {
     try {
       const existingMedication = await db.query.medicationsTable.findFirst({
         where: eq(medicationsTable.id, medicationId),
-        with: {
-          createdBy: true,
-        },
+        with: {},
       });
 
       if (!existingMedication) {
@@ -160,10 +142,7 @@ class MedicationService {
         };
       }
 
-      if (
-        user.role !== "admin" &&
-        user.id !== existingMedication.createdBy.id
-      ) {
+      if (account.id === existingMedication.pharmacyId) {
         return {
           success: false,
           data: "Unauthorized",
@@ -189,8 +168,8 @@ class MedicationService {
   }
 
   async deleteMedication(medicationId: string): Promise<Response<string>> {
-    const { user } = await validateRequest();
-    if (!user) {
+    const { account } = await validateRequest();
+    if (!account || !account.admin || !account.pharmacy) {
       return {
         success: false,
         data: "Unauthorized",
@@ -201,7 +180,11 @@ class MedicationService {
       const existingMedication = await db.query.medicationsTable.findFirst({
         where: eq(medicationsTable.id, medicationId),
         with: {
-          createdBy: true,
+          pharmacy: {
+            columns: {
+              id: true,
+            },
+          },
         },
       });
 
@@ -212,10 +195,7 @@ class MedicationService {
         };
       }
 
-      if (
-        user.role !== "admin" &&
-        user.id !== existingMedication.createdBy.id
-      ) {
+      if (account.id === existingMedication.pharmacyId) {
         return {
           success: false,
           data: "Unauthorized",
@@ -240,8 +220,8 @@ class MedicationService {
   }
 
   async createMedication(newMedication: Partial<Medication>) {
-    const { user } = await validateRequest();
-    if (!user || (user.role !== "admin" && user.role !== "pharmacy")) {
+    const { account } = await validateRequest();
+    if (!account || !account.admin || !account.pharmacy) {
       return {
         success: false,
         data: "Unauthorized",
@@ -262,7 +242,6 @@ class MedicationService {
           imageUrl: newMedication.imageUrl,
           pharmacyId: newMedication.pharmacyId,
           slug: newMedication.slug,
-          createdBy: user.id,
         })
         // .values(newMedication)
         .returning();

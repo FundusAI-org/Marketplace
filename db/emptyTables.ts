@@ -1,5 +1,5 @@
 import {
-  usersTable,
+  accountsTable,
   medicationsTable,
   pharmaciesTable,
   pharmacyInventoryTable,
@@ -9,6 +9,8 @@ import {
   reviewsTable,
   cartTable,
   cartItemsTable,
+  adminsTable,
+  customersTable,
 } from "./schema";
 
 import { db } from ".";
@@ -26,7 +28,9 @@ export async function clearDB() {
     await db.delete(pharmacyInventoryTable);
     await db.delete(pharmaciesTable);
     await db.delete(medicationsTable);
-    await db.delete(usersTable);
+    await db.delete(customersTable);
+    await db.delete(adminsTable);
+    await db.delete(accountsTable);
 
     // Seed Users
     console.log("Deleted existing data");

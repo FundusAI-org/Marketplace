@@ -33,13 +33,12 @@ import SolanaPayment from "@/components/SolanaPayment";
 
 import "@solana/wallet-adapter-react-ui/styles.css";
 import { createOrder } from "@/actions/order.actions";
-import { redirect } from "next/navigation";
 
 const wallets = [new PhantomWalletAdapter()];
 
 export default function CheckoutPage() {
   const { cart, refreshCart } = useCart();
-  const { user } = useSession();
+  const { account: user } = useSession();
   const [fundusPointsToUse, setFundusPointsToUse] = useState(0);
   const [fundusPointDiscount, setFundusPointDiscount] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState<"traditional" | "solana">(
@@ -56,7 +55,7 @@ export default function CheckoutPage() {
 
   const handleFundusPointsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Math.floor(Number(e.target.value));
-    if (value >= 0 && value <= (user?.fundusPoints || 0)) {
+    if (value >= 0 && value <= (user?.customer?.fundusPoints || 0)) {
       setFundusPointsToUse(value);
     }
   };
@@ -74,11 +73,11 @@ export default function CheckoutPage() {
 
   const handleSolanaPaymentComplete = async ({
     solanaTransactionId,
-    tradtionalTransactionId,
+
     orderId,
   }: {
     solanaTransactionId?: string;
-    tradtionalTransactionId?: string;
+
     orderId?: string;
   }) => {
     const orderItems = cart.items.map((item) => ({
@@ -103,7 +102,7 @@ export default function CheckoutPage() {
   return (
     <WalletProvider wallets={wallets} autoConnect>
       <WalletModalProvider>
-        <main className="container min-h-screen max-w-6xl bg-background py-6 md:py-12">
+        <main className="container max-w-6xl bg-background py-6 md:py-12">
           <h1 className="ml-2 text-3xl font-bold">Checkout</h1>
           <div className="flex flex-col gap-8 lg:flex-row">
             <div className="lg:w-2/3">
@@ -219,11 +218,11 @@ export default function CheckoutPage() {
                         value={fundusPointsToUse}
                         onChange={handleFundusPointsChange}
                         min={0}
-                        max={user.fundusPoints ?? 0}
+                        max={user.customer?.fundusPoints ?? 0}
                       />
                       <p className="mt-1 text-sm text-muted-foreground">
-                        Available: {user.fundusPoints} points (1 point = $2
-                        discount)
+                        Available: {user.customer?.fundusPoints} points (1 point
+                        = $2 discount)
                       </p>
                     </>
                   ) : (
@@ -255,7 +254,7 @@ export default function CheckoutPage() {
                       <SelectItem value="traditional">
                         Traditional Payment
                       </SelectItem>
-                      <SelectItem value="solana">Solana Blinks</SelectItem>
+                      <SelectItem value="solana">Pay with Sol</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

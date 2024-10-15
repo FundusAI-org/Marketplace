@@ -1,8 +1,9 @@
 import { Metadata } from "next";
 
-import { UserAuthForm } from "@/components/UserAuthForm";
+// import { UserAuthForm } from "@/components/UserAuthForm";
 import { validateRequest } from "@/lucia";
 import { redirect } from "next/navigation";
+import AuthForms from "@/components/AuthForms";
 
 export const metadata: Metadata = {
   title: "FundusAI Marketplace Authentication",
@@ -10,17 +11,21 @@ export const metadata: Metadata = {
 };
 
 export default async function AuthenticationPage() {
-  const { user } = await validateRequest();
+  const { account } = await validateRequest();
 
-  console.log(user);
-
-  if (!user?.id) {
+  if (!account?.id) {
     return (
       <main className="container flex max-w-6xl items-center justify-center bg-background py-6 md:py-12">
-        <UserAuthForm />
+        <AuthForms />
       </main>
     );
   } else {
-    redirect("/");
+    if (account.admin) {
+      redirect("/admin");
+    } else if (account.pharmacy) {
+      redirect("/pharmacy");
+    } else {
+      redirect("/");
+    }
   }
 }

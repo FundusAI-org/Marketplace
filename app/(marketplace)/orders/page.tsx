@@ -119,7 +119,7 @@ export default function ViewAllOrdersPage() {
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   return (
-    <main className="container min-h-screen max-w-6xl bg-background py-6 md:py-12">
+    <main className="container max-w-6xl bg-background py-6 md:py-12">
       <div className="flex items-center justify-between">
         <h1 className="ml-2 text-3xl font-bold">All Orders</h1>
 

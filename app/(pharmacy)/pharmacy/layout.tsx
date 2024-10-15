@@ -16,8 +16,8 @@ export default async function AdminLayout({
 }>) {
   const { account } = await validateRequest();
 
-  if (!account || !account.admin) {
-    redirect("/auth?action=login&role=admin");
+  if (!account || !account.pharmacy) {
+    redirect("/auth?action=login&role=pharmacy");
   }
 
   return (

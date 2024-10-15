@@ -14,10 +14,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { DataTableColumnHeader } from "@/components/admin ui/data-table-column-header";
-import { User } from "@/types/db.types";
+import { Account } from "@/types/db.types";
 import { Badge } from "@/components/ui/badge";
 
-export const columns: ColumnDef<User>[] = [
+export const columns: ColumnDef<{
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: string;
+  fundusPoints: number;
+}>[] = [
   {
     id: "select",
     header: ({ table }) => (

@@ -49,15 +49,7 @@ class SearchService {
           ilike(pharmaciesTable.city, `%${query}%`),
           ilike(pharmaciesTable.state, `%${query}%`),
         ),
-        with: {
-          user: {
-            columns: {
-              id: true,
-              email: true,
-              role: true,
-            },
-          },
-        },
+        with: {},
       });
 
       return {
@@ -82,15 +74,7 @@ class SearchService {
           ilike(medicationsTable.name, `%${query}%`),
           ilike(medicationsTable.description, `%${query}%`),
         ),
-        with: {
-          createdBy: {
-            columns: {
-              id: true,
-              email: true,
-              role: true,
-            },
-          },
-        },
+        with: {},
       });
 
       return {
@@ -114,15 +98,7 @@ class SearchService {
           ilike(pharmaciesTable.city, `%${query}%`),
           ilike(pharmaciesTable.state, `%${query}%`),
         ),
-        with: {
-          user: {
-            columns: {
-              id: true,
-              email: true,
-              role: true,
-            },
-          },
-        },
+        with: {},
       });
 
       return {
@@ -160,17 +136,17 @@ class SearchService {
         );
       }
 
-      // if (filters.minPrice !== undefined) {
-      //   medicationConditions.push(
-      //     gte(medicationsTable.price, filters.minPrice),
-      //   );
-      // }
+      if (filters.minPrice !== undefined) {
+        medicationConditions.push(
+          gte(medicationsTable.price, filters.minPrice.toPrecision(10)),
+        );
+      }
 
-      // if (filters.maxPrice !== undefined) {
-      //   medicationConditions.push(
-      //     lte(medicationsTable.price, filters.maxPrice),
-      //   );
-      // }
+      if (filters.maxPrice !== undefined) {
+        medicationConditions.push(
+          lte(medicationsTable.price, filters.maxPrice.toPrecision(10)),
+        );
+      }
 
       const medications = await db.query.medicationsTable.findMany({
         where: and(...medicationConditions),
@@ -199,15 +175,7 @@ class SearchService {
 
       const pharmacies = await db.query.pharmaciesTable.findMany({
         where: and(...pharmacyConditions),
-        with: {
-          user: {
-            columns: {
-              id: true,
-              email: true,
-              role: true,
-            },
-          },
-        },
+        with: {},
       });
 
       return {

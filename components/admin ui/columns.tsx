@@ -8,8 +8,7 @@ import { priorities, statuses } from "../data/data";
 
 import { DataTableColumnHeader } from "./data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
-import { User } from "@/types/db.types";
-// import { Task } from "../data/schema";
+import { Account as User } from "@/types/db.types";
 
 export const columns: ColumnDef<User>[] = [
   {
