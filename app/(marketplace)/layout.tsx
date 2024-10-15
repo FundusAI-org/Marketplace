@@ -44,7 +44,6 @@ export default async function MarketPlaceLayout({
   children: React.ReactNode;
 }>) {
   const cartResponse = await cartService.getCart();
-
   const cartData = cartResponse.success ? cartResponse.data : null;
   return (
     <CartProvider initialValue={cartData}>

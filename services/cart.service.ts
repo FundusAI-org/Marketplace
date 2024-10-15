@@ -14,7 +14,7 @@ class CartService {
   async getCart(): Promise<Response<CartWithItems | null>> {
     try {
       const { account: user } = await validateRequest();
-      if (!user) {
+      if (!user || !user.customer) {
         return {
           success: false,
           data: "Unauthorized",

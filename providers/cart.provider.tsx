@@ -48,10 +48,8 @@ export const CartProvider: React.FC<{
   };
 
   useEffect(() => {
-    if (account.customer) {
-      refreshCart();
-    }
-  }, []);
+    refreshCart();
+  }, [account]);
 
   return (
     <CartContext.Provider value={{ cart, refreshCart }}>
