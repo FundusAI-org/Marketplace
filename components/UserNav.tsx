@@ -17,7 +17,6 @@ import { useSession } from "@/providers/session.provider";
 import { signOut } from "@/actions/auth.actions";
 
 import { User } from "lucide-react";
-// import { UserAuthForm } from "./UserAuthForm";
 
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import Link from "next/link";

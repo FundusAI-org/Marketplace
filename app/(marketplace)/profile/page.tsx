@@ -85,6 +85,6 @@ export default async function CustomerProfilePage() {
       </main>
     );
   } else {
-    redirect("/auth?action=login&redirect=/profile");
+    redirect("/auth?role=customer&action=login&redirect=/profile");
   }
 }

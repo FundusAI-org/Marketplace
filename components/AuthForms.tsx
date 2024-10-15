@@ -4,28 +4,51 @@ import { FC } from "react";
 import UserAuthForm from "./UserAuthForm";
 import { useSearchParams } from "next/navigation";
 import PharmacyAuthForm from "./PharmacyAuthForm";
+import { useRouter } from "next/navigation";
+import { capitalizeFirstLetter } from "@/lib/utils";
 
-interface AuthFormsProps {}
-
-const AuthForms: FC<AuthFormsProps> = ({}) => {
+const AuthForms: FC = ({}) => {
   const params = useSearchParams();
+  const { replace } = useRouter();
 
   switch (params.get("role")) {
     case "customer":
-      return <UserAuthForm />;
+      return (
+        <div className="mx-auto py-10">
+          <h1 className="mb-6 text-center text-2xl font-bold">
+            {capitalizeFirstLetter(params.get("role"))} Authentication
+          </h1>
+          <UserAuthForm />
+        </div>
+      );
     case "admin":
-      return <UserAuthForm />;
+      return (
+        <div className="mx-auto py-10">
+          <h1 className="mb-6 text-center text-2xl font-bold">
+            {capitalizeFirstLetter(params.get("role"))} Authentication
+          </h1>
+          <UserAuthForm />
+        </div>
+      );
     case "pharmacy":
       return (
-        <div className="container mx-auto py-10">
+        <div className="mx-auto py-10">
           <h1 className="mb-6 text-center text-2xl font-bold">
-            Pharmacy Authentication
+            {capitalizeFirstLetter(params.get("role"))} Authentication
           </h1>
           <PharmacyAuthForm />
         </div>
       );
     default:
-      return <UserAuthForm />;
+      replace("/auth?role=customer&action=login");
+      return (
+        <div className="mx-auto py-10">
+          <h1 className="mb-6 text-center text-2xl font-bold">
+            {capitalizeFirstLetter(params.get("role"))} Authentication
+          </h1>
+          <UserAuthForm />
+        </div>
+      );
   }
 };
 

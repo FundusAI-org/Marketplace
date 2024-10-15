@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   openGraph: {
     images: [
       {
-        url: "https://marketplace-ten-sigma.vercel.app/og.png",
+        url: "https://fundusai-marketplace.vercel.app/og.png",
         width: 1200,
         height: 630,
         alt: "FundusAI Logo",
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     images: [
       {
-        url: "https://marketplace-ten-sigma.vercel.app/og.png",
+        url: "https://fundusai-marketplace.vercel.app/og.png",
         width: 1200,
         height: 630,
         alt: "FundusAI Logo",
@@ -48,7 +48,7 @@ export default async function MarketPlaceLayout({
   return (
     <CartProvider initialValue={cartData}>
       <Header />
-      <div className="flex min-h-screen w-full justify-center">{children}</div>
+      <div className="flex w-full justify-center">{children}</div>
     </CartProvider>
   );
 }

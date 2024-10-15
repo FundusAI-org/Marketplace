@@ -9,9 +9,6 @@ export default async function HomePage() {
   const { data: featuredMeds, success } =
     await medicationService.getFeaturedMedications();
 
-  // const { data: partneredPharmacies, success: pharmacySuccess } =
-  //   await medicationService.getFeaturedMedications();
-
   if (!success) {
     throw new Error("Server error fetching featured medications");
   }

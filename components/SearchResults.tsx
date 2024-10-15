@@ -59,7 +59,7 @@ const SearchResults: FC<SearchResultsProps> = ({ query, results, page }) => {
     searchParams.set("minPrice", priceRange[0].toString());
     searchParams.set("maxPrice", priceRange[1].toString());
     searchParams.set("pharmacies", selectedPharmacies.join(","));
-    router.push(`/search?${searchParams.toString()}`, { scroll: false });
+    router.replace(`/search?${searchParams.toString()}`, { scroll: false });
   }, [sortOption, priceRange, selectedPharmacies, router]);
 
   return (

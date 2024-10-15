@@ -1,5 +1,3 @@
-// "use client";
-
 import localFont from "next/font/local";
 import "./globals.css";
 
@@ -35,10 +33,8 @@ export default async function RootLayout({
       >
         <Toaster richColors />
         {modal}
-        <SessionProvider value={sessionData}>
-          {children}
-          <Footer />
-        </SessionProvider>
+        <SessionProvider value={sessionData}>{children}</SessionProvider>
+        <Footer />
       </body>
     </html>
   );

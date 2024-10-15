@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -38,6 +38,7 @@ import { toast } from "sonner";
 
 export default function PharmacyAuthForm() {
   const params = useSearchParams();
+  const { replace } = useRouter();
 
   const RegisterForm = useForm<z.infer<typeof PharmacyRegisterFormSchema>>({
     resolver: zodResolver(PharmacyRegisterFormSchema),
@@ -86,8 +87,18 @@ export default function PharmacyAuthForm() {
       className="mx-auto w-[400px] p-4 sm:p-0"
     >
       <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value="register">Register</TabsTrigger>
-        <TabsTrigger value="login">Login</TabsTrigger>
+        <TabsTrigger
+          value="login"
+          onClick={() => replace("/auth?role=pharmacy&action=login")}
+        >
+          Login
+        </TabsTrigger>
+        <TabsTrigger
+          value="register"
+          onClick={() => replace("/auth?role=pharmacy&action=register")}
+        >
+          Register
+        </TabsTrigger>
       </TabsList>
       <TabsContent value="register">
         <Card>

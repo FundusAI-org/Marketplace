@@ -231,7 +231,7 @@ export default function CheckoutPage() {
                       <AlertTitle>Login required</AlertTitle>
                       <AlertDescription>
                         Please{" "}
-                        <Link href="/auth?action=login" className="underline">
+                        <Link href="/auth?role=customer&action=login">
                           login
                         </Link>{" "}
                         to use Fundus Points discount.
