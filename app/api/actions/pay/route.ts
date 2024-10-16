@@ -61,7 +61,7 @@ export const POST = async (req: Request) => {
     const transferSolInstruction = SystemProgram.transfer({
       fromPubkey: account,
       toPubkey: toPubkey,
-      lamports: amount * LAMPORTS_PER_SOL,
+      lamports: Math.round(amount * LAMPORTS_PER_SOL),
     });
 
     // get the latest blockhash amd block height

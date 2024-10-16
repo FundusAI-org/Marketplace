@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   openGraph: {
     images: [
       {
-        url: "https://fundusai-marketplace.vercel.app/og.png",
+        url: "https://marketplace.fundusai.com/og.png",
         width: 1200,
         height: 630,
         alt: "FundusAI Logo",
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     images: [
       {
-        url: "https://fundusai-marketplace.vercel.app/og.png",
+        url: "https://marketplace.fundusai.com/og.png",
         width: 1200,
         height: 630,
         alt: "FundusAI Logo",
