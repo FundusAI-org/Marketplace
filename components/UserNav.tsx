@@ -77,7 +77,6 @@ export function UserNav() {
           <Link href={"/profile"}>
             <DropdownMenuItem>Profile</DropdownMenuItem>
           </Link>
-
           {account?.customer && (
             <Link href={"/cart"}>
               <DropdownMenuItem>Cart</DropdownMenuItem>

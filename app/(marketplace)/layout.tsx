@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import Header from "@/components/Header";
 import { CartProvider } from "@/providers/cart.provider";
 import cartService from "@/services/cart.service";
+import { validateRequest } from "@/lucia";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "FundusAI Marketplace",
@@ -45,6 +47,18 @@ export default async function MarketPlaceLayout({
 }>) {
   const cartResponse = await cartService.getCart();
   const cartData = cartResponse.success ? cartResponse.data : null;
+  const { account } = await validateRequest();
+
+  if (account) {
+    if (account.admin) {
+      redirect("/admin");
+    }
+
+    if (account.pharmacy) {
+      redirect("/pharmacy");
+    }
+  }
+
   return (
     <CartProvider initialValue={cartData}>
       <Header />

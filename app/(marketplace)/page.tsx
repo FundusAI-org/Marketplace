@@ -20,7 +20,7 @@ export default async function HomePage() {
           Find Your Medications
         </h1>
         <p className="mb-6 text-lg md:mb-8 md:text-xl">
-          Search for discounted medications and earn Fundus Points
+          Search for medications and get discounts with Fundus Points
         </p>
         <SearchBar goButton={true} />
       </section>
