@@ -42,7 +42,7 @@ export const GET = async (req: Request) => {
 
     const payload: ActionGetResponse = {
       type: "action",
-      title: "Actions Example - Transfer Native SOL",
+      title: "Donate to FundusAI",
       icon: new URL("/og.png", requestUrl.origin).toString(),
       description: "Donate to FundusAI",
       label: "Transfer", // this value will be ignored since `links.actions` exists

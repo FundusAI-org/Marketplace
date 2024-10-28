@@ -169,6 +169,13 @@
       "when": 1729022389175,
       "tag": "0023_faulty_tusk",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1729319500180,
+      "tag": "0024_late_deathbird",
+      "breakpoints": true
     }
   ]
 }

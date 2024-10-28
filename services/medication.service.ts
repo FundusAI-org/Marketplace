@@ -23,6 +23,33 @@ class MedicationService {
     }
   }
 
+  async getInventory(): Promise<Response<Medication[]>> {
+    try {
+      const { account } = await validateRequest();
+      if (!account || !account.pharmacy) {
+        return {
+          success: false,
+          data: "Unauthorized",
+        };
+      }
+
+      const inventory = await db.query.medicationsTable.findMany({
+        where: eq(medicationsTable.pharmacyId, account.id),
+        with: {},
+      });
+
+      return {
+        success: true,
+        data: inventory,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        data: error.message as string,
+      };
+    }
+  }
+
   async getMedication(medicationId: string): Promise<Response<Medication>> {
     try {
       const medication = await db.query.medicationsTable.findFirst({
@@ -92,7 +119,7 @@ class MedicationService {
   async getFeaturedMedications() {
     try {
       const featuredMedications = await db.query.medicationsTable.findMany({
-        where: eq(medicationsTable.inStock, true),
+        where: eq(medicationsTable.hidden, false),
         orderBy: [desc(medicationsTable.createdAt)],
         limit: 5,
         with: {
@@ -242,6 +269,7 @@ class MedicationService {
           imageUrl: newMedication.imageUrl,
           pharmacyId: newMedication.pharmacyId,
           slug: newMedication.slug,
+          quantity: newMedication.quantity,
         })
         // .values(newMedication)
         .returning();

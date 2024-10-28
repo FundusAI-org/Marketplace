@@ -4,7 +4,6 @@ import {
   adminsTable,
   pharmaciesTable,
   medicationsTable,
-  pharmacyInventoryTable,
   ordersTable,
   orderItemsTable,
   healthLogsTable,
@@ -22,7 +21,6 @@ import {
   Customer,
   Admin,
   Pharmacy,
-  PharmacyInventory,
   Review,
   Cart,
   CartItem,
@@ -39,7 +37,6 @@ export async function seed() {
     await db.delete(healthLogsTable);
     await db.delete(orderItemsTable);
     await db.delete(ordersTable);
-    await db.delete(pharmacyInventoryTable);
     await db.delete(medicationsTable);
     await db.delete(pharmaciesTable);
     await db.delete(customersTable);
@@ -125,7 +122,8 @@ export async function seed() {
         slug: slugify("OneTouch Glucometer (with Lancing Pen)"),
         description: `The OneTouch Glucometer is a reliable blood glucose monitoring system designed for people with diabetes to easily and accurately measure their blood sugar levels at home or on the go. The kit comes with a glucometer, a lancing pen, and a set of lancets, making it an all-in-one solution for routine glucose testing. The device delivers quick results in just 5 seconds and can store up to 500 test results to help users track their glucose levels over time.`,
         price: "40",
-        inStock: true,
+        quantity: faker.number.int({ min: 0, max: 100 }),
+        hidden: false,
         sideEffect: `Skin irritation or soreness from frequent finger pricking,
 Risk of infection if lancets are reused`,
 
@@ -155,12 +153,12 @@ Dispose of the lancet and test strip properly after each test`,
         description:
           "NovoLog is a fast-acting insulin analog (insulin aspart) designed for people with diabetes to manage their blood sugar levels after meals. It works by replacing the insulin that the body is unable to produce, helping glucose enter cells for energy production.",
         price: "90",
-        inStock: true,
+        hidden: false,
         sideEffect: `Low blood sugar (hypoglycemia),
 Redness or swelling at the injection site,
 Weight gain,
 Allergic reactions (rare)`,
-
+        quantity: faker.number.int({ min: 0, max: 100 }),
         pharmacyId: pharmacies[0].id,
         details: `10 mL vial, 100 units/mL.
 Store in a refrigerator (36°F–46°F).
@@ -179,7 +177,8 @@ Administer the injection immediately before a meal`,
         description:
           "Prefilled insulin pens offer a convenient, ready-to-use way to administer insulin. Each pen is loaded with fast-acting insulin, ideal for controlling post-meal blood sugar spikes. It provides accurate dosing and reduces the need for manual syringe preparation.",
         price: "120",
-        inStock: true,
+        hidden: false,
+        quantity: faker.number.int({ min: 0, max: 100 }),
         sideEffect: `Low blood sugar (hypoglycemia),
 Lipodystrophy (skin thickening) at the injection site,
 Allergic reactions (itching, rash)`,
@@ -208,7 +207,8 @@ Remove and dispose of the needle after each use`,
 Compatible with standard lancets.
 Compact, easy-to-carry design.
 Comes with 100 sterile, single-use lancets`,
-        inStock: true,
+        hidden: false,
+        quantity: faker.number.int({ min: 0, max: 100 }),
         price: "15",
         usage: `Insert a lancet into the lancing pen.
 Adjust the depth setting based on skin sensitivity.
@@ -224,21 +224,6 @@ Risk of infection if lancets are reused`,
       .insert(medicationsTable)
       .values(seedMedications)
       .returning();
-
-    // Seed Pharmacy Inventory
-    console.log("Seeding pharmacy inventory...");
-    const pharmacyInventory: Omit<
-      PharmacyInventory,
-      "createdAt" | "updatedAt"
-    >[] = medications.map((med) => ({
-      id: faker.string.uuid(),
-      pharmacyId: pharmacies[0].id,
-      medicationId: med.id,
-      quantity: faker.number.int({ min: 0, max: 100 }),
-      price: med.price,
-    }));
-
-    await db.insert(pharmacyInventoryTable).values(pharmacyInventory);
 
     // Seed Reviews
     console.log("Seeding reviews...");

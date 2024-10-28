@@ -2,7 +2,6 @@ import {
   accountsTable,
   medicationsTable,
   pharmaciesTable,
-  pharmacyInventoryTable,
   ordersTable,
   orderItemsTable,
   healthLogsTable,
@@ -25,7 +24,6 @@ export async function clearDB() {
     await db.delete(healthLogsTable);
     await db.delete(orderItemsTable);
     await db.delete(ordersTable);
-    await db.delete(pharmacyInventoryTable);
     await db.delete(pharmaciesTable);
     await db.delete(medicationsTable);
     await db.delete(customersTable);

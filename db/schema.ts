@@ -8,7 +8,6 @@ import {
   timestamp,
   date,
   pgEnum,
-  real,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -91,7 +90,8 @@ export const medicationsTable = pgTable("medications", {
   name: text("name").notNull(),
   description: text("description").notNull(),
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
-  inStock: boolean("in_stock").default(true).notNull(),
+  hidden: boolean("in_stock").default(false).notNull(),
+  quantity: integer("quantity").notNull(),
   imageUrl: text("image_url").notNull(),
   sideEffect: text("side_effect").notNull(),
   details: text("details").notNull(),
@@ -99,24 +99,6 @@ export const medicationsTable = pgTable("medications", {
   pharmacyId: uuid("pharmacy_id")
     .notNull()
     .references(() => pharmaciesTable.id, { onDelete: "cascade" }),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at")
-    .notNull()
-    .defaultNow()
-    .$onUpdate(() => new Date()),
-});
-
-// Pharmacy Inventory table
-export const pharmacyInventoryTable = pgTable("pharmacy_inventory", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  pharmacyId: uuid("pharmacy_id")
-    .notNull()
-    .references(() => pharmaciesTable.id, { onDelete: "cascade" }),
-  medicationId: uuid("medication_id")
-    .notNull()
-    .references(() => medicationsTable.id, { onDelete: "cascade" }),
-  quantity: integer("quantity").notNull(),
-  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")
     .notNull()
@@ -288,7 +270,6 @@ export const pharmaciesRelations = relations(
       fields: [pharmaciesTable.id],
       references: [accountsTable.id],
     }),
-    inventory: many(pharmacyInventoryTable),
     medications: many(medicationsTable),
   }),
 );
@@ -312,7 +293,6 @@ export const medicationsRelations = relations(
   medicationsTable,
   ({ many, one }) => ({
     orderItems: many(orderItemsTable),
-    pharmacyInventory: many(pharmacyInventoryTable),
     cartItems: many(cartItemsTable),
     reviews: many(reviewsTable),
     pharmacy: one(pharmaciesTable, {
@@ -393,11 +373,6 @@ export type SelectPharmacy = typeof pharmaciesTable.$inferSelect;
 
 export type InsertMedication = typeof medicationsTable.$inferInsert;
 export type SelectMedication = typeof medicationsTable.$inferSelect;
-
-export type InsertPharmacyInventory =
-  typeof pharmacyInventoryTable.$inferInsert;
-export type SelectPharmacyInventory =
-  typeof pharmacyInventoryTable.$inferSelect;
 
 export type InsertOrder = typeof ordersTable.$inferInsert;
 export type SelectOrder = typeof ordersTable.$inferSelect;
