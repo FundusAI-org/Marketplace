@@ -3,7 +3,6 @@ import {
   sessionsTable,
   medicationsTable,
   pharmaciesTable,
-  pharmacyInventoryTable,
   ordersTable,
   orderItemsTable,
   healthLogsTable,
@@ -27,7 +26,6 @@ export type Customer = typeof customersTable.$inferSelect;
 export type Admin = typeof adminsTable.$inferSelect;
 export type Medication = typeof medicationsTable.$inferSelect;
 export type Pharmacy = typeof pharmaciesTable.$inferSelect;
-export type PharmacyInventory = typeof pharmacyInventoryTable.$inferSelect;
 export type Order = typeof ordersTable.$inferSelect;
 export type OrderItem = typeof orderItemsTable.$inferSelect;
 export type HealthLog = typeof healthLogsTable.$inferSelect;

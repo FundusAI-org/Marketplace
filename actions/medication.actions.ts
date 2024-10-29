@@ -25,3 +25,7 @@ export const updateMedication = async (
 ) => {
   return medicationService.updateMedication(medicationId, updatedMedication);
 };
+
+export const createMedication = async (formData: FormData) => {
+  return medicationService.createMedication(formData);
+};

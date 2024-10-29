@@ -1,9 +1,13 @@
 import { db } from "@/db";
 import { medicationsTable } from "@/db/schema";
+import { uploadImage } from "@/lib/cloudinary-upload";
+import { slugify } from "@/lib/utils";
 import { validateRequest } from "@/lucia";
 import { Response } from "@/types/axios.types";
 import { Medication } from "@/types/db.types";
+import { ProductFormSchema } from "@/types/formschemas";
 import { eq, desc } from "drizzle-orm";
+import { z } from "zod";
 
 class MedicationService {
   async getMedications(): Promise<Response<Medication[]>> {
@@ -246,41 +250,77 @@ class MedicationService {
     }
   }
 
-  async createMedication(newMedication: Partial<Medication>) {
+  async createMedication(formData: FormData) {
     const { account } = await validateRequest();
-    if (!account || !account.admin || !account.pharmacy) {
+    if (!account || !account.pharmacy) {
       return {
         success: false,
         data: "Unauthorized",
       };
     }
 
+    const file = formData.get("imageBlob") as File;
+    const name = formData.get("name") as string;
+
+    if (!file) {
+      return {
+        success: false,
+        data: "No file uploaded",
+      };
+    }
+
     try {
+      const imageUploadResult = await uploadImage(
+        file,
+        name,
+        account.pharmacy.name,
+      );
+
+      const newMedicationData: z.infer<typeof ProductFormSchema> = {
+        imageUrl: imageUploadResult.secure_url,
+        name: formData.get("name") as string,
+        price: parseFloat(formData.get("price") as string),
+        quantity: parseInt(formData.get("quantity") as string, 10),
+        description: formData.get("description") as string,
+        sideEffects: formData.get("sideEffects") as string,
+        details: formData.get("details") as string,
+        usage: formData.get("usage") as string,
+      };
+
+      // Validate the data against the schema
+      ProductFormSchema.omit({
+        imageBlob: true,
+      }).parse(newMedicationData);
+
+      console.log(newMedicationData);
+
       const [createdMed] = await db
         .insert(medicationsTable)
         .values({
-          ...newMedication,
-          details: newMedication.details,
-          sideEffect: newMedication.sideEffect,
-          usage: newMedication.usage,
-          description: newMedication.description,
-          name: newMedication.name,
-          price: newMedication.price,
-          imageUrl: newMedication.imageUrl,
-          pharmacyId: newMedication.pharmacyId,
-          slug: newMedication.slug,
-          quantity: newMedication.quantity,
+          ...newMedicationData,
+          sideEffect: newMedicationData.sideEffects,
+          usage: newMedicationData.usage,
+          description: newMedicationData.description,
+          name: newMedicationData.name,
+          imageUrl: newMedicationData.imageUrl,
+          details: newMedicationData.details,
+          quantity: newMedicationData.quantity,
+          price: newMedicationData.price.toFixed(2),
+          pharmacyId: account.id,
+          slug: slugify(newMedicationData.name),
         })
-        // .values(newMedication)
         .returning();
+
       return {
         success: true,
         data: createdMed,
       };
     } catch (error: any) {
+      console.error("Error creating medication:", error);
       return {
         success: false,
-        data: error.message,
+        data:
+          error.message || "An error occurred while creating the medication",
       };
     }
   }

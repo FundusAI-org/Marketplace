@@ -10,6 +10,7 @@ import {
   reviewsTable,
   cartTable,
   cartItemsTable,
+  solanaTransactionsTable,
 } from "./schema";
 
 import { hash } from "@node-rs/argon2";
@@ -41,6 +42,7 @@ export async function seed() {
     await db.delete(pharmaciesTable);
     await db.delete(customersTable);
     await db.delete(adminsTable);
+    await db.delete(solanaTransactionsTable);
     await db.delete(accountsTable);
 
     // Seed Accounts and related tables
@@ -61,11 +63,6 @@ export async function seed() {
         email: "pharmacy@example.com",
         passwordHash: await hash("pharmacypass"),
       },
-      // ...Array.from({ length: 10 }, () => ({
-      //   id: faker.string.uuid(),
-      //   email: faker.internet.email(),
-      //   passwordHash: await hash("customerpass"),
-      // })),
     ];
 
     await db.insert(accountsTable).values(accounts);
@@ -79,7 +76,7 @@ export async function seed() {
         firstName: faker.person.firstName(),
         lastName: faker.person.lastName(),
         fundusPoints: faker.number.int({ min: 0, max: 100 }),
-        solanaWalletAddress: "",
+        solanaWalletAddress: faker.finance.ethereumAddress(),
       }));
 
     await db.insert(customersTable).values(customers);
@@ -126,7 +123,6 @@ export async function seed() {
         hidden: false,
         sideEffect: `Skin irritation or soreness from frequent finger pricking,
 Risk of infection if lancets are reused`,
-
         pharmacyId: pharmacies[0].id,
         details: `
         Glucometer with digital display.

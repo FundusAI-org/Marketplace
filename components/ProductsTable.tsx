@@ -39,7 +39,7 @@ import {
 export type Product = {
   id: string;
   name: string;
-  category: string;
+  // category: string;
   price: number;
   stock: number;
   image: string;
@@ -67,7 +67,7 @@ export const columns: ColumnDef<Product>[] = [
   },
   {
     accessorKey: "image",
-    header: "Image",
+    header: "",
     cell: ({ row }) => (
       <img
         src={row.getValue("image")}
@@ -91,13 +91,13 @@ export const columns: ColumnDef<Product>[] = [
     },
     cell: ({ row }) => <div className="lowercase">{row.getValue("name")}</div>,
   },
-  {
-    accessorKey: "category",
-    header: "Category",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("category")}</div>
-    ),
-  },
+  // {
+  //   accessorKey: "category",
+  //   header: "Category",
+  //   cell: ({ row }) => (
+  //     <div className="capitalize">{row.getValue("category")}</div>
+  //   ),
+  // },
   {
     accessorKey: "price",
     header: () => <div className="text-right">Price</div>,

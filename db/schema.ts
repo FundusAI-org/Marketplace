@@ -274,7 +274,6 @@ export const pharmaciesRelations = relations(
   }),
 );
 
-// Add relations for the new table
 export const solanaTransactionsRelations = relations(
   solanaTransactionsTable,
   ({ one }) => ({

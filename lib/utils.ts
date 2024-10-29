@@ -5,10 +5,13 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function slugify(text: string) {
+export function slugify(text: string, ...args: string[]): string {
   if (!text) throw new Error("text is required to slugify");
-  return text
-    .toString()
+
+  // Combine text and additional args into one string
+  const fullText = [text, ...args].join(" ");
+
+  return fullText
     .toLowerCase()
     .replace(/\s+/g, "-") // Replace spaces with -
     .replace(/[^\w-]+/g, "") // Remove all non-word chars

@@ -130,11 +130,11 @@ class SearchService {
         ),
       ];
 
-      if (filters.inStock !== undefined) {
-        medicationConditions.push(
-          eq(medicationsTable.inStock, filters.inStock),
-        );
-      }
+      // if (filters.inStock !== undefined) {
+      //   medicationConditions.push(
+      //     eq(medicationsTable.inStock, filters.inStock),
+      //   );
+      // }
 
       if (filters.minPrice !== undefined) {
         medicationConditions.push(

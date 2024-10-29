@@ -1,12 +1,17 @@
 import Image from "next/image";
 import { Star, Info } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import parse, {
+  domToReact,
+  HTMLReactParserOptions,
+  Element,
+  DOMNode,
+} from "html-react-parser";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import medicationService from "@/services/medication.service";
 import { Metadata, ResolvingMetadata } from "next";
 import MedicationCartHandle from "@/components/MedicationCartHandle";
 import TruncatedText from "@/components/TruncatedText";
-// import AddToCartButton from "./AddToCartButton";
 
 interface MedicationDetailPageProps {
   params: {
@@ -73,6 +78,39 @@ export default async function MedicationDetailPage({
     throw new Error("Page not found");
   }
 
+  const options: HTMLReactParserOptions = {
+    replace(domNode) {
+      // Check if domNode is an instance of Element and has attribs
+      if (domNode instanceof Element && domNode.attribs) {
+        const { name, children } = domNode;
+
+        if (name === "ul") {
+          return (
+            <ul className="ml-5 list-disc">
+              {domToReact(children as DOMNode[], options)}
+            </ul>
+          );
+        }
+
+        if (name === "ol") {
+          return (
+            <ol className="ml-5 list-decimal">
+              {domToReact(children as DOMNode[], options)}
+            </ol>
+          );
+        }
+
+        if (name === "p") {
+          return (
+            <p className="mb-4">{domToReact(children as DOMNode[], options)}</p>
+          );
+        }
+
+        // Add more custom replacements as needed
+      }
+    },
+  };
+
   return (
     <main className="container max-w-6xl py-6 md:py-12">
       <div className="flex flex-col gap-8 md:flex-row">
@@ -128,42 +166,23 @@ export default async function MedicationDetailPage({
             </TabsList>
             <TabsContent value="details" className="mt-4">
               <h2 className="mb-2 text-lg font-semibold">Product Details</h2>
-              <ul className="list-inside list-disc space-y-1">
-                {data.details &&
-                  data.details
-                    .split(".")
-                    .filter(Boolean)
-                    .map((detail, index) => (
-                      <li key={index}>{detail.trim()}</li>
-                    ))}
-              </ul>
+              {data.details && parse(data.details, options)}
             </TabsContent>
             <TabsContent value="sideEffects" className="mt-4">
               <h2 className="mb-2 text-lg font-semibold">
                 Possible Side Effects
               </h2>
-              <p>Common side effects may include:</p>
-              <ul className="list-inside list-disc space-y-1">
-                {data.sideEffect &&
-                  data.sideEffect
-                    .split(",")
-                    .map((sideEffect, index) => (
-                      <li key={index}>{sideEffect.trim()}</li>
-                    ))}
-              </ul>
+
+              {data.sideEffect && parse(data.sideEffect, options)}
+
               <p className="mt-2">
                 Consult your doctor if you experience any severe side effects.
               </p>
             </TabsContent>
             <TabsContent value="usage" className="mt-4">
               <h2 className="mb-2 text-lg font-semibold">How to Use</h2>
-              <ul className="list-inside list-disc space-y-1">
-                {data.usage &&
-                  data.usage
-                    .split(".")
-                    .filter(Boolean)
-                    .map((usage, index) => <li key={index}>{usage.trim()}</li>)}
-              </ul>
+
+              {data.usage && parse(data.usage, options)}
             </TabsContent>
           </Tabs>
         </div>
